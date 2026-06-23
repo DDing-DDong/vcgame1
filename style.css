@@ -1,0 +1,76 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background-color: #222;
+  color: white;
+  font-family: Arial, sans-serif;
+  text-align: center;
+}
+
+.game-container {
+  width: 520px;
+  margin: 30px auto;
+}
+
+h1 {
+  margin-bottom: 10px;
+}
+
+.info-box {
+  display: flex;
+  justify-content: space-between;
+  background-color: #333;
+  padding: 10px 20px;
+  border-radius: 10px;
+  margin-bottom: 15px;
+}
+
+#game-board {
+  position: relative;
+  width: 500px;
+  height: 400px;
+  background-color: #111;
+  border: 3px solid white;
+  overflow: hidden;
+  margin: 0 auto;
+}
+
+#player {
+  position: absolute;
+  width: 35px;
+  height: 35px;
+  background-color: dodgerblue;
+  border-radius: 8px;
+  left: 230px;
+  top: 180px;
+}
+
+.coin {
+  position: absolute;
+  width: 25px;
+  height: 25px;
+  background-color: gold;
+  border-radius: 50%;
+  border: 2px solid orange;
+}
+
+#message {
+  font-size: 18px;
+  margin-top: 15px;
+}
+
+#restart-btn {
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: gold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+#restart-btn:hover {
+  background-color: orange;
+}
