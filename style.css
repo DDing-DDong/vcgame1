@@ -6,7 +6,7 @@
 
 body{
     min-height:100vh;
-    background:#1b2b1f;
+    background:#13291b;
     color:white;
     font-family:Arial,sans-serif;
     text-align:center;
@@ -51,11 +51,24 @@ h1{
     background:#3f8cff;
 }
 
+.mode-box button.selected-mode{
+    background:#ffe066;
+    color:#263238;
+    outline:4px solid white;
+}
+
 .mode-box button:disabled{
     background:#555;
     color:#aaa;
     cursor:not-allowed;
     box-shadow:none;
+    outline:none;
+}
+
+.mode-box button.selected-mode:disabled{
+    background:#ffe066;
+    color:#263238;
+    outline:4px solid white;
 }
 
 .top-ui{
@@ -75,115 +88,47 @@ h1{
     height:520px;
     margin:auto;
     border:4px solid #3b2414;
-    background:linear-gradient(#79cfff 0%, #93dcff 42%, #70b843 43%, #4c9632 100%);
+    background:
+        radial-gradient(circle at 20% 25%, #4fa04f 0 60px, transparent 61px),
+        radial-gradient(circle at 75% 20%, #3e8f3e 0 80px, transparent 81px),
+        radial-gradient(circle at 45% 75%, #4f9a3c 0 100px, transparent 101px),
+        linear-gradient(135deg, #5eaa3f 0%, #2f7d32 45%, #1f5f2e 100%);
     position:relative;
     overflow:hidden;
     box-shadow:0 8px 15px rgba(0,0,0,0.45);
 }
 
-.sun{
-    width:70px;
-    height:70px;
-    background:#ffd95a;
-    border-radius:50%;
+.forest-layer{
     position:absolute;
-    top:35px;
-    right:70px;
-    box-shadow:0 0 30px #ffe680;
+    width:100%;
+    height:100%;
+    left:0;
+    top:0;
+    pointer-events:none;
 }
 
-.cloud{
-    width:90px;
-    height:30px;
-    background:white;
-    border-radius:30px;
-    position:absolute;
+.layer1{
+    background:
+        radial-gradient(circle at 8% 18%, #1f6f34 0 55px, transparent 56px),
+        radial-gradient(circle at 22% 34%, #2d8a3f 0 70px, transparent 71px),
+        radial-gradient(circle at 38% 20%, #237a36 0 60px, transparent 61px),
+        radial-gradient(circle at 58% 32%, #2f9344 0 75px, transparent 76px),
+        radial-gradient(circle at 82% 25%, #1f6f34 0 85px, transparent 86px);
     opacity:0.9;
 }
 
-.cloud::before{
-    content:"";
-    width:40px;
-    height:40px;
-    background:white;
-    border-radius:50%;
-    position:absolute;
-    left:15px;
-    top:-18px;
+.layer2{
+    background:
+        linear-gradient(90deg, transparent 0 6%, #6b3f1d 6% 8%, transparent 8% 18%, #6b3f1d 18% 20%, transparent 20% 35%, #5d371a 35% 37%, transparent 37% 56%, #6b3f1d 56% 58%, transparent 58% 78%, #5d371a 78% 80%, transparent 80% 100%);
+    opacity:0.45;
 }
 
-.cloud::after{
-    content:"";
-    width:50px;
-    height:50px;
-    background:white;
-    border-radius:50%;
-    position:absolute;
-    right:10px;
-    top:-25px;
-}
-
-.cloud1{
-    top:70px;
-    left:90px;
-}
-
-.cloud2{
-    top:95px;
-    right:180px;
-    transform:scale(0.8);
-}
-
-.tree{
-    width:70px;
-    height:120px;
-    position:absolute;
-    bottom:165px;
-}
-
-.tree::before{
-    content:"";
-    width:28px;
-    height:70px;
-    background:#6b3f1d;
-    position:absolute;
-    left:21px;
-    bottom:0;
-}
-
-.tree::after{
-    content:"";
-    width:90px;
-    height:90px;
-    background:#1f7a35;
-    border-radius:50%;
-    position:absolute;
-    left:-10px;
-    top:0;
-    box-shadow:20px 15px 0 #2e9d45, -15px 20px 0 #267f3a;
-}
-
-.tree1{ left:40px; }
-.tree2{ left:170px; transform:scale(0.9); }
-.tree3{ right:100px; transform:scale(1.05); }
-.tree4{ right:240px; transform:scale(0.85); }
-
-.grass{
-    width:100%;
-    height:80px;
-    background:#3c8f2e;
-    position:absolute;
-    bottom:120px;
-    border-top:5px solid #2f7a26;
-}
-
-.ground{
-    width:100%;
-    height:150px;
-    background:#8b5a2b;
-    position:absolute;
-    bottom:0;
-    border-top:12px solid #5fa832;
+.layer3{
+    background:
+        radial-gradient(circle at 15% 78%, rgba(40,120,45,0.8) 0 80px, transparent 81px),
+        radial-gradient(circle at 65% 82%, rgba(34,100,41,0.8) 0 90px, transparent 91px),
+        radial-gradient(circle at 92% 70%, rgba(45,130,50,0.8) 0 70px, transparent 71px),
+        linear-gradient(to bottom, transparent 0 65%, rgba(86,56,28,0.9) 66% 100%);
 }
 
 #player{

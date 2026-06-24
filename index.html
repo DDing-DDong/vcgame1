@@ -14,7 +14,7 @@
     <div id="unlock-message">1단계를 클리어하면 2단계가 해금됩니다!</div>
 
     <div class="mode-box">
-        <button id="stage1-btn">1단계</button>
+        <button id="stage1-btn" class="selected-mode">1단계</button>
         <button id="stage2-btn" disabled>2단계</button>
         <button id="infinite-btn" disabled>무한모드</button>
     </div>
@@ -26,17 +26,9 @@
     </div>
 
     <div id="game-board">
-        <div class="sun"></div>
-        <div class="cloud cloud1"></div>
-        <div class="cloud cloud2"></div>
-
-        <div class="tree tree1"></div>
-        <div class="tree tree2"></div>
-        <div class="tree tree3"></div>
-        <div class="tree tree4"></div>
-
-        <div class="grass"></div>
-        <div class="ground"></div>
+        <div class="forest-layer layer1"></div>
+        <div class="forest-layer layer2"></div>
+        <div class="forest-layer layer3"></div>
 
         <div id="player">
             <div class="squirrel-tail"></div>
@@ -63,7 +55,7 @@
         <h2>게임 설명</h2>
         <p>1단계는 도토리 10개를 모으면 클리어됩니다.</p>
         <p>2단계는 도토리 20개를 모으면 클리어되며, 부엉이와 독수리 장애물이 등장합니다.</p>
-        <p>2단계를 클리어하면 무한모드가 해금됩니다.</p>
+        <p>게임 중에는 다른 모드로 변경할 수 없습니다.</p>
         <p>방향키를 누르고 있으면 다람쥐가 부드럽게 움직입니다.</p>
     </div>
 </div>

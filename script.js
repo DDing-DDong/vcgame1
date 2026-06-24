@@ -75,7 +75,6 @@ function startBGM(){
 
     bgmInterval = setInterval(() => {
         playNote(melody[noteIndex], 0.16, 0.035, "triangle");
-
         noteIndex++;
 
         if(noteIndex >= melody.length){
@@ -113,7 +112,32 @@ function playHitSound(){
     playNote(180, 0.2, 0.18, "sawtooth");
 }
 
+function updateModeButtons(){
+    stage1Btn.classList.remove("selected-mode");
+    stage2Btn.classList.remove("selected-mode");
+    infiniteBtn.classList.remove("selected-mode");
+
+    if(currentMode === "stage1") stage1Btn.classList.add("selected-mode");
+    if(currentMode === "stage2") stage2Btn.classList.add("selected-mode");
+    if(currentMode === "infinite") infiniteBtn.classList.add("selected-mode");
+
+    if(gameRunning){
+        stage1Btn.disabled = true;
+        stage2Btn.disabled = true;
+        infiniteBtn.disabled = true;
+    }else{
+        stage1Btn.disabled = false;
+        stage2Btn.disabled = !stage2Unlocked;
+        infiniteBtn.disabled = !infiniteUnlocked;
+    }
+}
+
 function selectMode(mode){
+    if(gameRunning){
+        unlockMessage.textContent = "게임 진행 중에는 모드를 바꿀 수 없습니다!";
+        return;
+    }
+
     if(mode === "stage2" && !stage2Unlocked){
         unlockMessage.textContent = "1단계를 먼저 클리어해야 2단계가 열립니다!";
         return;
@@ -131,6 +155,7 @@ function selectMode(mode){
         targetAcorns = 10;
         time = 30;
         message.textContent = "1단계: 도토리 10개를 모으세요!";
+        unlockMessage.textContent = stage2Unlocked ? "2단계가 해금되었습니다!" : "1단계를 클리어하면 2단계가 해금됩니다!";
     }
 
     if(mode === "stage2"){
@@ -138,6 +163,7 @@ function selectMode(mode){
         targetAcorns = 20;
         time = 45;
         message.textContent = "2단계: 장애물을 피하며 도토리 20개를 모으세요!";
+        unlockMessage.textContent = infiniteUnlocked ? "무한모드가 해금되었습니다!" : "2단계를 클리어하면 무한모드가 해금됩니다!";
     }
 
     if(mode === "infinite"){
@@ -145,12 +171,15 @@ function selectMode(mode){
         targetAcorns = 999;
         time = 60;
         message.textContent = "무한모드: 제한 시간 동안 최대한 많은 도토리를 모으세요!";
+        unlockMessage.textContent = "무한모드 선택 완료!";
     }
 
     score = 0;
     scoreText.textContent = score;
     targetText.textContent = currentMode === "infinite" ? "∞" : targetAcorns;
     timeText.textContent = time;
+
+    updateModeButtons();
 }
 
 function clearObjects(){
@@ -177,7 +206,7 @@ function createOneAcorn(){
     acorn.classList.add("acorn");
 
     const x = 40 + Math.random() * (boardWidth - 90);
-    const y = 250 + Math.random() * 210;
+    const y = 40 + Math.random() * (boardHeight - 90);
 
     acorn.style.left = x + "px";
     acorn.style.top = y + "px";
@@ -200,16 +229,19 @@ function startGame(){
     if(currentMode === "stage1"){
         targetAcorns = 10;
         time = 30;
+        stageText.textContent = "1단계";
     }
 
     if(currentMode === "stage2"){
         targetAcorns = 20;
         time = 45;
+        stageText.textContent = "2단계";
     }
 
     if(currentMode === "infinite"){
         targetAcorns = 999;
         time = 60;
+        stageText.textContent = "무한모드";
     }
 
     scoreText.textContent = score;
@@ -221,6 +253,7 @@ function startGame(){
 
     updatePlayerPosition();
     createAcorns();
+    updateModeButtons();
 
     if(currentMode === "stage2" || currentMode === "infinite"){
         startObstacleSpawn();
@@ -241,14 +274,17 @@ function startGame(){
 
     if(currentMode === "stage1"){
         message.textContent = "1단계 진행 중! 도토리 10개를 모으세요.";
+        unlockMessage.textContent = "1단계 플레이 중!";
     }
 
     if(currentMode === "stage2"){
         message.textContent = "2단계 진행 중! 부엉이와 독수리를 피하세요.";
+        unlockMessage.textContent = "2단계 플레이 중!";
     }
 
     if(currentMode === "infinite"){
         message.textContent = "무한모드 진행 중! 최대한 많이 모으세요.";
+        unlockMessage.textContent = "무한모드 플레이 중!";
     }
 }
 
@@ -284,24 +320,24 @@ function createObstacle(type){
 
     if(direction === 0){
         x = -70;
-        y = 220 + Math.random() * 230;
+        y = Math.random() * (boardHeight - 60);
         speedX = speed;
     }
 
     if(direction === 1){
         x = boardWidth + 70;
-        y = 220 + Math.random() * 230;
+        y = Math.random() * (boardHeight - 60);
         speedX = -speed;
     }
 
     if(direction === 2){
-        x = Math.random() * boardWidth;
+        x = Math.random() * (boardWidth - 60);
         y = -70;
         speedY = speed;
     }
 
     if(direction === 3){
-        x = Math.random() * boardWidth;
+        x = Math.random() * (boardWidth - 60);
         y = boardHeight + 70;
         speedY = -speed;
     }
@@ -401,17 +437,17 @@ function clearStage(){
 
     if(currentMode === "stage1"){
         stage2Unlocked = true;
-        stage2Btn.disabled = false;
         unlockMessage.textContent = "성공! 2단계 해금완료!";
         message.textContent = "1단계 클리어! 이제 2단계를 선택할 수 있습니다.";
     }
 
     if(currentMode === "stage2"){
         infiniteUnlocked = true;
-        infiniteBtn.disabled = false;
         unlockMessage.textContent = "성공! 무한모드 해금완료!";
         message.textContent = "2단계 클리어! 이제 무한모드를 선택할 수 있습니다.";
     }
+
+    updateModeButtons();
 }
 
 function endGame(resultMessage){
@@ -421,6 +457,7 @@ function endGame(resultMessage){
     stopBGM();
 
     message.textContent = resultMessage;
+    updateModeButtons();
 }
 
 function gameLoop(){
@@ -440,17 +477,15 @@ function gameLoop(){
         if(keys.ArrowLeft){
             playerX -= moveSpeed;
             moving = true;
-            player.classList.add("left");
         }
 
         if(keys.ArrowRight){
             playerX += moveSpeed;
             moving = true;
-            player.classList.remove("left");
         }
 
         playerX = Math.max(0, Math.min(playerX, boardWidth - playerWidth));
-        playerY = Math.max(210, Math.min(playerY, boardHeight - playerHeight));
+        playerY = Math.max(0, Math.min(playerY, boardHeight - playerHeight));
 
         if(moving){
             player.classList.add("moving");
