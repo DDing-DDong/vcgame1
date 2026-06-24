@@ -10,10 +10,11 @@ body{
     color:white;
     font-family:Arial,sans-serif;
     text-align:center;
+    overflow-x:hidden;
 }
 
 .game-wrapper{
-    width:980px;
+    width:min(980px, calc(100vw - 20px));
     margin:20px auto;
     padding:20px;
     background:#2f6b2f;
@@ -28,7 +29,7 @@ h1{
 }
 
 #unlock-message{
-    width:900px;
+    width:min(900px, 100%);
     margin:0 auto 12px;
     padding:10px;
     background:#1f3b25;
@@ -40,7 +41,7 @@ h1{
 }
 
 .mode-box{
-    width:900px;
+    width:min(900px, 100%);
     margin:0 auto 12px;
     display:grid;
     grid-template-columns:repeat(3, 1fr);
@@ -73,7 +74,7 @@ h1{
 }
 
 .top-ui{
-    width:900px;
+    width:min(900px, 100%);
     margin:0 auto 12px;
     display:flex;
     justify-content:space-between;
@@ -85,13 +86,16 @@ h1{
 }
 
 #game-board{
-    width:900px;
-    height:520px;
+    width:min(900px, 100%);
+    aspect-ratio:900 / 520;
+    height:auto;
     margin:auto;
     border:4px solid #3b2414;
     background:url("background.png") center / cover no-repeat;
     position:relative;
     overflow:hidden;
+    touch-action:none;
+    user-select:none;
     box-shadow:0 8px 15px rgba(0,0,0,0.45);
 }
 
@@ -110,7 +114,7 @@ h1{
 }
 
 .overlay-box{
-    width:430px;
+    width:min(430px, calc(100% - 28px));
     padding:28px;
     background:#263238;
     border:4px solid #ffe066;
@@ -137,7 +141,7 @@ h1{
 }
 
 #result-box{
-    width:460px;
+    width:min(460px, calc(100% - 28px));
     padding:25px;
     background:#263238;
     border:4px solid #ffe066;
@@ -456,7 +460,7 @@ button:hover{
 }
 
 .ranking-board{
-    width:900px;
+    width:min(900px, 100%);
     margin:auto;
     background:#263238;
     padding:18px;
@@ -510,4 +514,137 @@ button:hover{
     display:block !important;
     text-align:center;
     color:#ddd;
+}
+
+@media (max-width:600px){
+    body{
+        min-height:100svh;
+    }
+
+    .game-wrapper{
+        width:100vw;
+        min-height:100svh;
+        margin:0;
+        padding:10px;
+        border-radius:0;
+    }
+
+    h1{
+        margin-bottom:8px;
+        font-size:clamp(24px, 8vw, 32px);
+    }
+
+    #unlock-message{
+        margin-bottom:8px;
+        padding:8px;
+        font-size:14px;
+        border-radius:8px;
+    }
+
+    .mode-box{
+        gap:6px;
+        margin-bottom:8px;
+    }
+
+    .mode-box button,
+    button{
+        padding:10px 8px;
+        font-size:14px;
+        border-radius:8px;
+    }
+
+    .top-ui{
+        display:grid;
+        grid-template-columns:1fr;
+        gap:4px;
+        margin-bottom:8px;
+        padding:8px 10px;
+        font-size:14px;
+        text-align:left;
+    }
+
+    #game-board{
+        border-width:3px;
+    }
+
+    #player{
+        width:64px;
+        height:64px;
+    }
+
+    .shield-effect{
+        width:78px;
+        height:78px;
+        left:-7px;
+        top:-7px;
+        border-width:4px;
+    }
+
+    #shield-timer{
+        top:-24px;
+        font-size:16px;
+    }
+
+    .banana{
+        width:42px;
+        height:42px;
+    }
+
+    .obstacle{
+        width:46px;
+        height:46px;
+    }
+
+    #message{
+        margin:8px 0;
+        font-size:15px;
+    }
+
+    .overlay-box{
+        padding:20px 16px;
+    }
+
+    .overlay-box h2,
+    #result-box h2{
+        font-size:24px;
+    }
+
+    .overlay-box p,
+    #result-box p{
+        font-size:16px;
+    }
+
+    #result-box{
+        padding:18px 14px;
+    }
+
+    #result-button-box,
+    #ranking-input-box{
+        flex-wrap:wrap;
+    }
+
+    .ranking-board{
+        padding:12px;
+        border-radius:8px;
+    }
+
+    .ranking-board h2{
+        font-size:19px;
+        margin-bottom:8px;
+    }
+
+    #ranking-list{
+        grid-template-columns:1fr;
+        gap:6px;
+    }
+
+    #ranking-list li{
+        grid-template-columns:42px 1fr 54px;
+        padding:7px 8px;
+        font-size:14px;
+    }
+
+    .empty-rank{
+        grid-column:1 !important;
+    }
 }

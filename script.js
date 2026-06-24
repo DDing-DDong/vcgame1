@@ -40,6 +40,7 @@ let infiniteUnlocked = false;
 
 let playerX = 420;
 let playerY = 300;
+let touchActive = false;
 
 let timer;
 let bgmInterval;
@@ -55,10 +56,10 @@ let shieldEndTime = 0;
 
 let audioContext;
 
-const boardWidth = 900;
-const boardHeight = 520;
-const playerWidth = 90;
-const playerHeight = 90;
+let boardWidth = 900;
+let boardHeight = 520;
+let playerWidth = 90;
+let playerHeight = 90;
 const bananaSize = 56;
 const shieldSize = 34;
 const moveSpeed = 4.8;
@@ -76,6 +77,17 @@ const keys = {
     ArrowLeft: false,
     ArrowRight: false
 };
+
+function updateGameMetrics(){
+    boardWidth = board.clientWidth;
+    boardHeight = board.clientHeight;
+    playerWidth = player.offsetWidth;
+    playerHeight = player.offsetHeight;
+
+    playerX = Math.max(0, Math.min(playerX, boardWidth - playerWidth));
+    playerY = Math.max(0, Math.min(playerY, boardHeight - playerHeight));
+    updatePlayerPosition();
+}
 
 function initAudio(){
     if(!audioContext){
@@ -319,6 +331,8 @@ function createBananas(){
 }
 
 function createOneBanana(){
+    updateGameMetrics();
+
     const banana = document.createElement("div");
     banana.classList.add("banana");
     banana.dataset.score = "1";
@@ -378,6 +392,7 @@ function removeBanana(banana){
 
 function createShieldItem(){
     if(shieldItems.length > 0) return;
+    updateGameMetrics();
 
     const shield = document.createElement("div");
     shield.classList.add("shield-item");
@@ -455,6 +470,7 @@ function checkShieldItems(){
 function startGame(){
     initAudio();
     startBGM();
+    updateGameMetrics();
 
     hideStartOverlay();
     hideResult();
@@ -491,8 +507,8 @@ function startGame(){
     targetText.textContent = currentMode === "infinite" ? "∞" : targetBananas;
     timeText.textContent = time;
 
-    playerX = 420;
-    playerY = 300;
+    playerX = (boardWidth - playerWidth) / 2;
+    playerY = (boardHeight - playerHeight) / 2;
 
     updatePlayerPosition();
     createBananas();
@@ -543,6 +559,8 @@ function startObstacleSpawn(){
 }
 
 function createObstacle(type){
+    updateGameMetrics();
+
     const obstacle = document.createElement("div");
     obstacle.classList.add("obstacle");
 
@@ -622,7 +640,7 @@ function checkObstacleCollision(){
     obstacles.forEach((obstacle, index) => {
         const obstacleX = Number(obstacle.dataset.x);
         const obstacleY = Number(obstacle.dataset.y);
-        const obstacleSize = 55;
+        const obstacleSize = obstacle.offsetWidth;
 
         if(
             playerX < obstacleX + obstacleSize &&
@@ -652,15 +670,34 @@ function updatePlayerPosition(){
     player.style.transform = `translate(${playerX}px, ${playerY}px)`;
 }
 
+function movePlayerToPointer(clientX, clientY){
+    if(!gameRunning) return;
+
+    updateGameMetrics();
+
+    const boardRect = board.getBoundingClientRect();
+    const targetX = clientX - boardRect.left - playerWidth / 2;
+    const targetY = clientY - boardRect.top - playerHeight / 2;
+
+    playerX = Math.max(0, Math.min(targetX, boardWidth - playerWidth));
+    playerY = Math.max(0, Math.min(targetY, boardHeight - playerHeight));
+
+    player.classList.add("moving");
+    updatePlayerPosition();
+    checkBananas();
+    checkShieldItems();
+}
+
 function checkBananas(){
     bananas.forEach((banana, index) => {
         const bananaX = parseInt(banana.style.left);
         const bananaY = parseInt(banana.style.top);
+        const currentBananaSize = banana.offsetWidth || bananaSize;
 
         if(
-            playerX < bananaX + bananaSize &&
+            playerX < bananaX + currentBananaSize &&
             playerX + playerWidth > bananaX &&
-            playerY < bananaY + bananaSize &&
+            playerY < bananaY + currentBananaSize &&
             playerY + playerHeight > bananaY
         ){
             const bananaScore = Number(banana.dataset.score || 1);
@@ -858,7 +895,7 @@ function gameLoop(){
         playerX = Math.max(0, Math.min(playerX, boardWidth - playerWidth));
         playerY = Math.max(0, Math.min(playerY, boardHeight - playerHeight));
 
-        if(moving){
+        if(moving || touchActive){
             player.classList.add("moving");
             updatePlayerPosition();
             checkBananas();
@@ -888,6 +925,36 @@ document.addEventListener("keyup", (e) => {
     }
 });
 
+board.addEventListener("pointerdown", (e) => {
+    if(!gameRunning) return;
+
+    touchActive = true;
+    board.setPointerCapture(e.pointerId);
+    movePlayerToPointer(e.clientX, e.clientY);
+    e.preventDefault();
+});
+
+board.addEventListener("pointermove", (e) => {
+    if(!touchActive) return;
+
+    movePlayerToPointer(e.clientX, e.clientY);
+    e.preventDefault();
+});
+
+board.addEventListener("pointerup", (e) => {
+    touchActive = false;
+
+    if(board.hasPointerCapture(e.pointerId)){
+        board.releasePointerCapture(e.pointerId);
+    }
+});
+
+board.addEventListener("pointercancel", () => {
+    touchActive = false;
+});
+
+window.addEventListener("resize", updateGameMetrics);
+
 stage1Btn.addEventListener("click", () => selectMode("stage1"));
 stage2Btn.addEventListener("click", () => selectMode("stage2"));
 infiniteBtn.addEventListener("click", () => selectMode("infinite"));
@@ -895,6 +962,7 @@ infiniteBtn.addEventListener("click", () => selectMode("infinite"));
 overlayStartBtn.addEventListener("click", startGame);
 saveRankBtn.addEventListener("click", saveRanking);
 
+updateGameMetrics();
 selectMode("stage1");
 renderRanking();
 gameLoop();
