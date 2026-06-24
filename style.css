@@ -57,14 +57,6 @@ h1{
     position:absolute;
 }
 
-.obstacle{
-    width:35px;
-    height:35px;
-    background:red;
-    border-radius:50%;
-    position:absolute;
-}
-
 #message{
     margin:15px 0;
     font-size:18px;
