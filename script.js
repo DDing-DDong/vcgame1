@@ -13,15 +13,15 @@ let playerY = 300;
 
 let timer;
 let bgmInterval;
-let seeds = [];
+let acorns = [];
 
 let audioContext;
 
 const boardWidth = 900;
 const boardHeight = 520;
-const playerSize = 45;
-const seedSize = 25;
-const totalSeeds = 10;
+const playerSize = 52;
+const acornSize = 26;
+const totalAcorns = 10;
 
 function initAudio(){
     if(!audioContext){
@@ -54,6 +54,7 @@ function startBGM(){
         playNote(melody[noteIndex], 0.16, 0.035, "triangle");
 
         noteIndex++;
+
         if(noteIndex >= melody.length){
             noteIndex = 0;
         }
@@ -67,7 +68,7 @@ function stopBGM(){
     }
 }
 
-function playSeedSound(){
+function playAcornSound(){
     playNote(700, 0.08, 0.12, "square");
 
     setTimeout(() => {
@@ -85,22 +86,22 @@ function playWinSound(){
     });
 }
 
-function createSeeds(){
-    document.querySelectorAll(".seed").forEach(seed => seed.remove());
-    seeds = [];
+function createAcorns(){
+    document.querySelectorAll(".acorn").forEach(acorn => acorn.remove());
+    acorns = [];
 
-    for(let i = 0; i < totalSeeds; i++){
-        const seed = document.createElement("div");
-        seed.classList.add("seed");
+    for(let i = 0; i < totalAcorns; i++){
+        const acorn = document.createElement("div");
+        acorn.classList.add("acorn");
 
         const x = 40 + Math.random() * (boardWidth - 90);
         const y = 250 + Math.random() * 210;
 
-        seed.style.left = x + "px";
-        seed.style.top = y + "px";
+        acorn.style.left = x + "px";
+        acorn.style.top = y + "px";
 
-        board.appendChild(seed);
-        seeds.push(seed);
+        board.appendChild(acorn);
+        acorns.push(acorn);
     }
 }
 
@@ -121,7 +122,7 @@ function startGame(){
     player.style.left = playerX + "px";
     player.style.top = playerY + "px";
 
-    createSeeds();
+    createAcorns();
 
     clearInterval(timer);
 
@@ -133,38 +134,38 @@ function startGame(){
             gameRunning = false;
             clearInterval(timer);
             stopBGM();
-            message.textContent = "시간 초과! 햄스터가 씨앗을 다 찾지 못했어요.";
+            message.textContent = "시간 초과! 다람쥐가 도토리를 다 모으지 못했어요.";
         }
     }, 1000);
 
-    message.textContent = "햄스터가 숲속에서 씨앗을 찾는 중!";
+    message.textContent = "다람쥐가 숲속에서 도토리를 찾는 중!";
 }
 
-function checkSeeds(){
-    seeds.forEach((seed, index) => {
-        const seedX = parseInt(seed.style.left);
-        const seedY = parseInt(seed.style.top);
+function checkAcorns(){
+    acorns.forEach((acorn, index) => {
+        const acornX = parseInt(acorn.style.left);
+        const acornY = parseInt(acorn.style.top);
 
         if(
-            playerX < seedX + seedSize &&
-            playerX + playerSize > seedX &&
-            playerY < seedY + seedSize &&
-            playerY + playerSize > seedY
+            playerX < acornX + acornSize &&
+            playerX + playerSize > acornX &&
+            playerY < acornY + acornSize &&
+            playerY + playerSize > acornY
         ){
-            seed.remove();
-            seeds.splice(index, 1);
+            acorn.remove();
+            acorns.splice(index, 1);
 
             score++;
             scoreText.textContent = score;
 
-            playSeedSound();
+            playAcornSound();
 
-            if(score === totalSeeds){
+            if(score === totalAcorns){
                 gameRunning = false;
                 clearInterval(timer);
                 stopBGM();
                 playWinSound();
-                message.textContent = "성공! 햄스터가 씨앗을 모두 찾았습니다!";
+                message.textContent = "성공! 다람쥐가 도토리를 모두 모았습니다!";
             }
         }
     });
@@ -177,7 +178,7 @@ function movePlayer(){
     player.style.left = playerX + "px";
     player.style.top = playerY + "px";
 
-    checkSeeds();
+    checkAcorns();
 }
 
 document.addEventListener("keydown", (e) => {
@@ -187,17 +188,6 @@ document.addEventListener("keydown", (e) => {
     if(e.key === "ArrowDown") playerY += 15;
     if(e.key === "ArrowLeft") playerX -= 15;
     if(e.key === "ArrowRight") playerX += 15;
-
-    movePlayer();
-});
-
-board.addEventListener("mousemove", (e) => {
-    if(!gameRunning) return;
-
-    const rect = board.getBoundingClientRect();
-
-    playerX = e.clientX - rect.left - playerSize / 2;
-    playerY = e.clientY - rect.top - playerSize / 2;
 
     movePlayer();
 });

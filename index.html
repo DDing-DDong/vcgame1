@@ -3,18 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>햄스터 먹이 찾기</title>
+<title>다람쥐 도토리 찾기</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div class="game-wrapper">
-    <h1>햄스터 먹이 찾기</h1>
+    <h1>다람쥐 도토리 찾기</h1>
 
     <div class="top-ui">
-        <div>먹은 씨앗: <span id="score">0</span> / 10</div>
+        <div>모은 도토리: <span id="score">0</span> / 10</div>
         <div>남은 시간: <span id="time">30</span>초</div>
-        <div>목표: 씨앗 모두 찾기</div>
+        <div>목표: 도토리 모두 모으기</div>
     </div>
 
     <div id="game-board">
@@ -31,6 +31,7 @@
         <div class="ground"></div>
 
         <div id="player">
+            <div class="tail"></div>
             <div class="ear left-ear"></div>
             <div class="ear right-ear"></div>
             <div class="face">
@@ -50,9 +51,9 @@
 
     <div class="description-box">
         <h2>게임 설명</h2>
-        <p>숲속에 떨어진 씨앗을 햄스터가 제한 시간 안에 모두 찾아야 합니다.</p>
-        <p>방향키 또는 마우스로 햄스터를 움직일 수 있습니다.</p>
-        <p>씨앗 10개를 모두 모으면 성공입니다.</p>
+        <p>숲속에 떨어진 도토리를 다람쥐가 제한 시간 안에 모두 모아야 합니다.</p>
+        <p>방향키로 다람쥐를 움직일 수 있습니다.</p>
+        <p>도토리 10개를 모두 모으면 성공입니다.</p>
     </div>
 </div>
 
