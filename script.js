@@ -8,14 +8,20 @@ let score = 0;
 let time = 30;
 let gameRunning = false;
 
-let playerX = 230;
-let playerY = 180;
+let playerX = 430;
+let playerY = 300;
 
 let timer;
 let bgmInterval;
 let seeds = [];
 
 let audioContext;
+
+const boardWidth = 900;
+const boardHeight = 520;
+const playerSize = 45;
+const seedSize = 25;
+const totalSeeds = 10;
 
 function initAudio(){
     if(!audioContext){
@@ -29,7 +35,6 @@ function playNote(frequency, duration, volume, type){
 
     osc.type = type;
     osc.frequency.value = frequency;
-
     gain.gain.value = volume;
 
     osc.connect(gain);
@@ -46,10 +51,9 @@ function startBGM(){
     let noteIndex = 0;
 
     bgmInterval = setInterval(() => {
-        playNote(melody[noteIndex], 0.16, 0.04, "triangle");
+        playNote(melody[noteIndex], 0.16, 0.035, "triangle");
 
         noteIndex++;
-
         if(noteIndex >= melody.length){
             noteIndex = 0;
         }
@@ -85,12 +89,12 @@ function createSeeds(){
     document.querySelectorAll(".seed").forEach(seed => seed.remove());
     seeds = [];
 
-    for(let i = 0; i < 10; i++){
+    for(let i = 0; i < totalSeeds; i++){
         const seed = document.createElement("div");
         seed.classList.add("seed");
 
-        const x = Math.random() * 460;
-        const y = Math.random() * 360;
+        const x = 40 + Math.random() * (boardWidth - 90);
+        const y = 250 + Math.random() * 210;
 
         seed.style.left = x + "px";
         seed.style.top = y + "px";
@@ -111,8 +115,8 @@ function startGame(){
     scoreText.textContent = score;
     timeText.textContent = time;
 
-    playerX = 230;
-    playerY = 180;
+    playerX = 430;
+    playerY = 300;
 
     player.style.left = playerX + "px";
     player.style.top = playerY + "px";
@@ -133,7 +137,7 @@ function startGame(){
         }
     }, 1000);
 
-    message.textContent = "햄스터가 씨앗을 찾는 중!";
+    message.textContent = "햄스터가 숲속에서 씨앗을 찾는 중!";
 }
 
 function checkSeeds(){
@@ -142,10 +146,10 @@ function checkSeeds(){
         const seedY = parseInt(seed.style.top);
 
         if(
-            playerX < seedX + 25 &&
-            playerX + 35 > seedX &&
-            playerY < seedY + 25 &&
-            playerY + 35 > seedY
+            playerX < seedX + seedSize &&
+            playerX + playerSize > seedX &&
+            playerY < seedY + seedSize &&
+            playerY + playerSize > seedY
         ){
             seed.remove();
             seeds.splice(index, 1);
@@ -155,7 +159,7 @@ function checkSeeds(){
 
             playSeedSound();
 
-            if(score === 10){
+            if(score === totalSeeds){
                 gameRunning = false;
                 clearInterval(timer);
                 stopBGM();
@@ -166,6 +170,16 @@ function checkSeeds(){
     });
 }
 
+function movePlayer(){
+    playerX = Math.max(0, Math.min(playerX, boardWidth - playerSize));
+    playerY = Math.max(210, Math.min(playerY, boardHeight - playerSize));
+
+    player.style.left = playerX + "px";
+    player.style.top = playerY + "px";
+
+    checkSeeds();
+}
+
 document.addEventListener("keydown", (e) => {
     if(!gameRunning) return;
 
@@ -174,13 +188,7 @@ document.addEventListener("keydown", (e) => {
     if(e.key === "ArrowLeft") playerX -= 15;
     if(e.key === "ArrowRight") playerX += 15;
 
-    playerX = Math.max(0, Math.min(playerX, 465));
-    playerY = Math.max(0, Math.min(playerY, 365));
-
-    player.style.left = playerX + "px";
-    player.style.top = playerY + "px";
-
-    checkSeeds();
+    movePlayer();
 });
 
 board.addEventListener("mousemove", (e) => {
@@ -188,16 +196,10 @@ board.addEventListener("mousemove", (e) => {
 
     const rect = board.getBoundingClientRect();
 
-    playerX = e.clientX - rect.left - 17.5;
-    playerY = e.clientY - rect.top - 17.5;
+    playerX = e.clientX - rect.left - playerSize / 2;
+    playerY = e.clientY - rect.top - playerSize / 2;
 
-    playerX = Math.max(0, Math.min(playerX, 465));
-    playerY = Math.max(0, Math.min(playerY, 365));
-
-    player.style.left = playerX + "px";
-    player.style.top = playerY + "px";
-
-    checkSeeds();
+    movePlayer();
 });
 
 document.getElementById("start-btn").addEventListener("click", startGame);
