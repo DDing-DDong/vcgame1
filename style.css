@@ -239,26 +239,6 @@ h1{
     padding:10px 15px;
 }
 
-#ranking-list-box{
-    background:#1f3b25;
-    border-radius:10px;
-    padding:12px;
-    margin-top:10px;
-    text-align:left;
-}
-
-#ranking-list-box h3{
-    text-align:center;
-    color:#ffe066;
-    margin-bottom:8px;
-}
-
-#ranking-list{
-    padding-left:30px;
-    line-height:1.6;
-    font-weight:bold;
-}
-
 .hidden{
     display:none !important;
 }
@@ -478,7 +458,7 @@ button:hover{
     transform:translateY(-2px);
 }
 
-.description-box{
+.ranking-board{
     width:900px;
     margin:auto;
     background:#263238;
@@ -488,12 +468,49 @@ button:hover{
     line-height:1.7;
 }
 
-.description-box h2{
-    font-size:22px;
-    margin-bottom:8px;
+.ranking-board h2{
+    font-size:24px;
+    margin-bottom:12px;
+    text-align:center;
+    color:#ffe066;
+}
+
+#ranking-list{
+    list-style:none;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px 18px;
+}
+
+#ranking-list li{
+    display:grid;
+    grid-template-columns:58px 1fr 70px;
+    align-items:center;
+    background:#1f3b25;
+    padding:8px 12px;
+    border-radius:8px;
+    font-weight:bold;
+}
+
+.rank-medal{
+    font-size:24px;
     text-align:center;
 }
 
-.description-box p{
-    font-size:16px;
+.rank-name{
+    overflow:hidden;
+    white-space:nowrap;
+    text-overflow:ellipsis;
+}
+
+.rank-score{
+    text-align:right;
+    color:#ffe066;
+}
+
+.empty-rank{
+    grid-column:1 / 3 !important;
+    display:block !important;
+    text-align:center;
+    color:#ddd;
 }

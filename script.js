@@ -18,7 +18,6 @@ const resultText = document.getElementById("result-text");
 const resultButtonBox = document.getElementById("result-button-box");
 
 const rankingInputBox = document.getElementById("ranking-input-box");
-const rankingListBox = document.getElementById("ranking-list-box");
 const playerNameInput = document.getElementById("player-name");
 const saveRankBtn = document.getElementById("save-rank-btn");
 const rankingList = document.getElementById("ranking-list");
@@ -175,7 +174,6 @@ function showResult(title, text, type){
     resultBox.classList.remove("hidden");
 
     rankingInputBox.classList.add("hidden");
-    rankingListBox.classList.add("hidden");
     resultButtonBox.innerHTML = "";
 
     if(type === "stage-clear"){
@@ -203,8 +201,8 @@ function showResult(title, text, type){
     }
 
     if(type === "infinite"){
+        playerNameInput.value = "";
         rankingInputBox.classList.remove("hidden");
-        rankingListBox.classList.remove("hidden");
 
         const retryButton = document.createElement("button");
         retryButton.textContent = "다시 시작";
@@ -218,6 +216,7 @@ function showResult(title, text, type){
 
 function hideResult(){
     resultBox.classList.add("hidden");
+    playerNameInput.value = "";
 }
 
 function selectMode(mode){
@@ -470,7 +469,6 @@ function updateObstacles(){
 }
 
 function checkObstacleCollision(){
-    obstacles.forEach(() => {});
     obstacles.forEach((obstacle) => {
         const obstacleX = Number(obstacle.dataset.x);
         const obstacleY = Number(obstacle.dataset.y);
@@ -604,9 +602,37 @@ function renderRanking(){
     const rankings = getRankings();
     rankingList.innerHTML = "";
 
-    rankings.slice(0, 5).forEach((rank) => {
+    if(rankings.length === 0){
+        const empty = document.createElement("li");
+        empty.classList.add("empty-rank");
+        empty.textContent = "아직 등록된 기록이 없습니다.";
+        rankingList.appendChild(empty);
+        return;
+    }
+
+    rankings.slice(0, 10).forEach((rank, index) => {
         const li = document.createElement("li");
-        li.textContent = `${rank.name} - ${rank.score}개`;
+
+        const medal = document.createElement("span");
+        medal.classList.add("rank-medal");
+
+        if(index === 0) medal.textContent = "🥇";
+        if(index === 1) medal.textContent = "🥈";
+        if(index === 2) medal.textContent = "🥉";
+        if(index > 2) medal.textContent = `${index + 1}위`;
+
+        const name = document.createElement("span");
+        name.classList.add("rank-name");
+        name.textContent = rank.name;
+
+        const scoreValue = document.createElement("span");
+        scoreValue.classList.add("rank-score");
+        scoreValue.textContent = `${rank.score}개`;
+
+        li.appendChild(medal);
+        li.appendChild(name);
+        li.appendChild(scoreValue);
+
         rankingList.appendChild(li);
     });
 }
@@ -623,15 +649,23 @@ function saveRanking(){
 
     rankings.push({
         name: name,
-        score: score
+        score: score,
+        createdAt: Date.now()
     });
 
-    rankings.sort((a, b) => b.score - a.score);
+    rankings.sort((a, b) => {
+        if(b.score === a.score){
+            return a.createdAt - b.createdAt;
+        }
 
-    saveRankings(rankings.slice(0, 5));
+        return b.score - a.score;
+    });
+
+    saveRankings(rankings.slice(0, 10));
+
     playerNameInput.value = "";
-    renderRanking();
     rankingInputBox.classList.add("hidden");
+    renderRanking();
 }
 
 function gameLoop(){
@@ -697,4 +731,5 @@ overlayStartBtn.addEventListener("click", startGame);
 saveRankBtn.addEventListener("click", saveRanking);
 
 selectMode("stage1");
+renderRanking();
 gameLoop();
