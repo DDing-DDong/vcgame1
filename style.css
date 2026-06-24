@@ -22,9 +22,40 @@ body{
 }
 
 h1{
-    margin-bottom:15px;
+    margin-bottom:12px;
     font-size:38px;
     text-shadow:3px 3px 0 #3b2414;
+}
+
+#unlock-message{
+    width:900px;
+    margin:0 auto 12px;
+    padding:10px;
+    background:#1f3b25;
+    border:2px solid #8fd36b;
+    border-radius:10px;
+    font-size:18px;
+    font-weight:bold;
+    color:#ffe066;
+}
+
+.mode-box{
+    width:900px;
+    margin:0 auto 12px;
+    display:flex;
+    justify-content:center;
+    gap:10px;
+}
+
+.mode-box button{
+    background:#3f8cff;
+}
+
+.mode-box button:disabled{
+    background:#555;
+    color:#aaa;
+    cursor:not-allowed;
+    box-shadow:none;
 }
 
 .top-ui{
@@ -167,10 +198,6 @@ h1{
     will-change:transform;
 }
 
-#player.left{
-    transform-origin:center;
-}
-
 .squirrel-tail{
     width:42px;
     height:62px;
@@ -293,12 +320,8 @@ h1{
 }
 
 @keyframes walk{
-    from{
-        margin-top:0;
-    }
-    to{
-        margin-top:-3px;
-    }
+    from{ margin-top:0; }
+    to{ margin-top:-3px; }
 }
 
 .acorn{
@@ -331,6 +354,30 @@ h1{
     top:-10px;
     left:7px;
     border-radius:4px;
+}
+
+.obstacle{
+    width:60px;
+    height:60px;
+    position:absolute;
+    z-index:12;
+    font-size:48px;
+    line-height:60px;
+    text-align:center;
+    filter:drop-shadow(0 4px 3px rgba(0,0,0,0.4));
+}
+
+.owl{
+    animation:floatObstacle 0.6s infinite alternate;
+}
+
+.eagle{
+    animation:floatObstacle 0.25s infinite alternate;
+}
+
+@keyframes floatObstacle{
+    from{ transform:translateY(0); }
+    to{ transform:translateY(-6px); }
 }
 
 #message{

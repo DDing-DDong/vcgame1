@@ -1,19 +1,35 @@
 const board = document.getElementById("game-board");
 const player = document.getElementById("player");
 const scoreText = document.getElementById("score");
+const targetText = document.getElementById("target");
 const timeText = document.getElementById("time");
+const stageText = document.getElementById("stage");
 const message = document.getElementById("message");
+const unlockMessage = document.getElementById("unlock-message");
+
+const stage1Btn = document.getElementById("stage1-btn");
+const stage2Btn = document.getElementById("stage2-btn");
+const infiniteBtn = document.getElementById("infinite-btn");
+const startBtn = document.getElementById("start-btn");
+const restartBtn = document.getElementById("restart-btn");
 
 let score = 0;
 let time = 30;
+let targetAcorns = 10;
+let currentMode = "stage1";
 let gameRunning = false;
+
+let stage2Unlocked = false;
+let infiniteUnlocked = false;
 
 let playerX = 420;
 let playerY = 300;
 
 let timer;
 let bgmInterval;
+let obstacleInterval;
 let acorns = [];
+let obstacles = [];
 let audioContext;
 
 const boardWidth = 900;
@@ -21,7 +37,6 @@ const boardHeight = 520;
 const playerWidth = 90;
 const playerHeight = 90;
 const acornSize = 26;
-const totalAcorns = 10;
 const moveSpeed = 4.8;
 
 const keys = {
@@ -94,34 +109,111 @@ function playWinSound(){
     });
 }
 
+function playHitSound(){
+    playNote(180, 0.2, 0.18, "sawtooth");
+}
+
+function selectMode(mode){
+    if(mode === "stage2" && !stage2Unlocked){
+        unlockMessage.textContent = "1단계를 먼저 클리어해야 2단계가 열립니다!";
+        return;
+    }
+
+    if(mode === "infinite" && !infiniteUnlocked){
+        unlockMessage.textContent = "2단계를 먼저 클리어해야 무한모드가 열립니다!";
+        return;
+    }
+
+    currentMode = mode;
+
+    if(mode === "stage1"){
+        stageText.textContent = "1단계";
+        targetAcorns = 10;
+        time = 30;
+        message.textContent = "1단계: 도토리 10개를 모으세요!";
+    }
+
+    if(mode === "stage2"){
+        stageText.textContent = "2단계";
+        targetAcorns = 20;
+        time = 45;
+        message.textContent = "2단계: 장애물을 피하며 도토리 20개를 모으세요!";
+    }
+
+    if(mode === "infinite"){
+        stageText.textContent = "무한모드";
+        targetAcorns = 999;
+        time = 60;
+        message.textContent = "무한모드: 제한 시간 동안 최대한 많은 도토리를 모으세요!";
+    }
+
+    score = 0;
+    scoreText.textContent = score;
+    targetText.textContent = currentMode === "infinite" ? "∞" : targetAcorns;
+    timeText.textContent = time;
+}
+
+function clearObjects(){
+    document.querySelectorAll(".acorn").forEach(acorn => acorn.remove());
+    document.querySelectorAll(".obstacle").forEach(obstacle => obstacle.remove());
+
+    acorns = [];
+    obstacles = [];
+}
+
 function createAcorns(){
     document.querySelectorAll(".acorn").forEach(acorn => acorn.remove());
     acorns = [];
 
-    for(let i = 0; i < totalAcorns; i++){
-        const acorn = document.createElement("div");
-        acorn.classList.add("acorn");
+    let count = currentMode === "stage1" ? 10 : 8;
 
-        const x = 40 + Math.random() * (boardWidth - 90);
-        const y = 250 + Math.random() * 210;
-
-        acorn.style.left = x + "px";
-        acorn.style.top = y + "px";
-
-        board.appendChild(acorn);
-        acorns.push(acorn);
+    for(let i = 0; i < count; i++){
+        createOneAcorn();
     }
+}
+
+function createOneAcorn(){
+    const acorn = document.createElement("div");
+    acorn.classList.add("acorn");
+
+    const x = 40 + Math.random() * (boardWidth - 90);
+    const y = 250 + Math.random() * 210;
+
+    acorn.style.left = x + "px";
+    acorn.style.top = y + "px";
+
+    board.appendChild(acorn);
+    acorns.push(acorn);
 }
 
 function startGame(){
     initAudio();
     startBGM();
 
+    clearInterval(timer);
+    clearInterval(obstacleInterval);
+    clearObjects();
+
     score = 0;
-    time = 30;
     gameRunning = true;
 
+    if(currentMode === "stage1"){
+        targetAcorns = 10;
+        time = 30;
+    }
+
+    if(currentMode === "stage2"){
+        targetAcorns = 20;
+        time = 45;
+    }
+
+    if(currentMode === "infinite"){
+        targetAcorns = 999;
+        time = 60;
+    }
+
     scoreText.textContent = score;
+    targetText.textContent = currentMode === "infinite" ? "∞" : targetAcorns;
     timeText.textContent = time;
 
     playerX = 420;
@@ -130,21 +222,140 @@ function startGame(){
     updatePlayerPosition();
     createAcorns();
 
-    clearInterval(timer);
+    if(currentMode === "stage2" || currentMode === "infinite"){
+        startObstacleSpawn();
+    }
 
     timer = setInterval(() => {
         time--;
         timeText.textContent = time;
 
         if(time <= 0){
-            gameRunning = false;
-            clearInterval(timer);
-            stopBGM();
-            message.textContent = "시간 초과! 다람쥐가 도토리를 다 모으지 못했어요.";
+            if(currentMode === "infinite"){
+                endGame(`무한모드 종료! 최종 도토리: ${score}개`);
+            }else{
+                endGame("시간 초과! 다람쥐가 도토리를 다 모으지 못했어요.");
+            }
         }
     }, 1000);
 
-    message.textContent = "다람쥐가 숲속에서 도토리를 찾는 중!";
+    if(currentMode === "stage1"){
+        message.textContent = "1단계 진행 중! 도토리 10개를 모으세요.";
+    }
+
+    if(currentMode === "stage2"){
+        message.textContent = "2단계 진행 중! 부엉이와 독수리를 피하세요.";
+    }
+
+    if(currentMode === "infinite"){
+        message.textContent = "무한모드 진행 중! 최대한 많이 모으세요.";
+    }
+}
+
+function startObstacleSpawn(){
+    obstacleInterval = setInterval(() => {
+        createObstacle("owl");
+
+        if(Math.random() > 0.45){
+            createObstacle("eagle");
+        }
+    }, 1400);
+}
+
+function createObstacle(type){
+    const obstacle = document.createElement("div");
+    obstacle.classList.add("obstacle");
+
+    if(type === "owl"){
+        obstacle.classList.add("owl");
+        obstacle.textContent = "🦉";
+    }else{
+        obstacle.classList.add("eagle");
+        obstacle.textContent = "🦅";
+    }
+
+    const direction = Math.floor(Math.random() * 4);
+    let x;
+    let y;
+    let speedX = 0;
+    let speedY = 0;
+
+    const speed = type === "owl" ? 2.2 : 4.2;
+
+    if(direction === 0){
+        x = -70;
+        y = 220 + Math.random() * 230;
+        speedX = speed;
+    }
+
+    if(direction === 1){
+        x = boardWidth + 70;
+        y = 220 + Math.random() * 230;
+        speedX = -speed;
+    }
+
+    if(direction === 2){
+        x = Math.random() * boardWidth;
+        y = -70;
+        speedY = speed;
+    }
+
+    if(direction === 3){
+        x = Math.random() * boardWidth;
+        y = boardHeight + 70;
+        speedY = -speed;
+    }
+
+    obstacle.style.left = x + "px";
+    obstacle.style.top = y + "px";
+
+    obstacle.dataset.x = x;
+    obstacle.dataset.y = y;
+    obstacle.dataset.speedX = speedX;
+    obstacle.dataset.speedY = speedY;
+
+    board.appendChild(obstacle);
+    obstacles.push(obstacle);
+}
+
+function updateObstacles(){
+    obstacles.forEach((obstacle, index) => {
+        let x = Number(obstacle.dataset.x);
+        let y = Number(obstacle.dataset.y);
+        const speedX = Number(obstacle.dataset.speedX);
+        const speedY = Number(obstacle.dataset.speedY);
+
+        x += speedX;
+        y += speedY;
+
+        obstacle.dataset.x = x;
+        obstacle.dataset.y = y;
+        obstacle.style.left = x + "px";
+        obstacle.style.top = y + "px";
+
+        if(x < -120 || x > boardWidth + 120 || y < -120 || y > boardHeight + 120){
+            obstacle.remove();
+            obstacles.splice(index, 1);
+        }
+    });
+}
+
+function checkObstacleCollision(){
+    obstacles.forEach((obstacle) => {
+        const obstacleX = Number(obstacle.dataset.x);
+        const obstacleY = Number(obstacle.dataset.y);
+        const obstacleSize = 55;
+
+        if(
+            playerX < obstacleX + obstacleSize &&
+            playerX + playerWidth > obstacleX &&
+            playerY < obstacleY + obstacleSize &&
+            playerY + playerHeight > obstacleY
+        ){
+            playHitSound();
+            endGame("실패! 장애물에 부딪혔습니다. 다시 시작해보세요!");
+        }
+    });
 }
 
 function updatePlayerPosition(){
@@ -170,15 +381,46 @@ function checkAcorns(){
 
             playAcornSound();
 
-            if(score === totalAcorns){
-                gameRunning = false;
-                clearInterval(timer);
-                stopBGM();
-                playWinSound();
-                message.textContent = "성공! 다람쥐가 도토리를 모두 모았습니다!";
+            if(currentMode === "stage2" || currentMode === "infinite"){
+                createOneAcorn();
+            }
+
+            if(currentMode !== "infinite" && score >= targetAcorns){
+                clearStage();
             }
         }
     });
+}
+
+function clearStage(){
+    gameRunning = false;
+    clearInterval(timer);
+    clearInterval(obstacleInterval);
+    stopBGM();
+    playWinSound();
+
+    if(currentMode === "stage1"){
+        stage2Unlocked = true;
+        stage2Btn.disabled = false;
+        unlockMessage.textContent = "성공! 2단계 해금완료!";
+        message.textContent = "1단계 클리어! 이제 2단계를 선택할 수 있습니다.";
+    }
+
+    if(currentMode === "stage2"){
+        infiniteUnlocked = true;
+        infiniteBtn.disabled = false;
+        unlockMessage.textContent = "성공! 무한모드 해금완료!";
+        message.textContent = "2단계 클리어! 이제 무한모드를 선택할 수 있습니다.";
+    }
+}
+
+function endGame(resultMessage){
+    gameRunning = false;
+    clearInterval(timer);
+    clearInterval(obstacleInterval);
+    stopBGM();
+
+    message.textContent = resultMessage;
 }
 
 function gameLoop(){
@@ -217,6 +459,9 @@ function gameLoop(){
         }else{
             player.classList.remove("moving");
         }
+
+        updateObstacles();
+        checkObstacleCollision();
     }
 
     requestAnimationFrame(gameLoop);
@@ -225,6 +470,7 @@ function gameLoop(){
 document.addEventListener("keydown", (e) => {
     if(e.key in keys){
         keys[e.key] = true;
+        e.preventDefault();
     }
 });
 
@@ -234,7 +480,12 @@ document.addEventListener("keyup", (e) => {
     }
 });
 
-document.getElementById("start-btn").addEventListener("click", startGame);
-document.getElementById("restart-btn").addEventListener("click", startGame);
+stage1Btn.addEventListener("click", () => selectMode("stage1"));
+stage2Btn.addEventListener("click", () => selectMode("stage2"));
+infiniteBtn.addEventListener("click", () => selectMode("infinite"));
 
+startBtn.addEventListener("click", startGame);
+restartBtn.addEventListener("click", startGame);
+
+selectMode("stage1");
 gameLoop();
