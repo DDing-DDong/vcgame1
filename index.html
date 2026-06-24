@@ -3,21 +3,30 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>코인 먹기 게임</title>
+<title>햄스터 먹이 찾기</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div class="game-container">
-    <h1>코인 먹기 게임</h1>
+
+    <h1>햄스터 먹이 찾기</h1>
 
     <div class="info-box">
-        <span>점수: <span id="score">0</span></span>
+        <span>먹은 씨앗: <span id="score">0</span></span>
         <span>남은 시간: <span id="time">30</span>초</span>
     </div>
 
     <div id="game-board">
-        <div id="player"></div>
+        <div id="player">
+            <div class="ear left-ear"></div>
+            <div class="ear right-ear"></div>
+            <div class="face">
+                <span class="eye left-eye"></span>
+                <span class="eye right-eye"></span>
+                <span class="nose"></span>
+            </div>
+        </div>
     </div>
 
     <p id="message">게임 시작 버튼을 누르세요!</p>
@@ -26,8 +35,17 @@
         <button id="start-btn">게임 시작</button>
         <button id="restart-btn">다시 시작</button>
     </div>
+
+    <div class="description-box">
+        <h2>게임 설명</h2>
+        <p>배고픈 햄스터를 움직여 제한 시간 안에 씨앗을 모두 모으세요.</p>
+        <p>방향키 또는 마우스로 햄스터를 움직일 수 있습니다.</p>
+        <p>씨앗을 모두 먹으면 게임 성공입니다.</p>
+    </div>
+
 </div>
 
 <script src="script.js"></script>
+
 </body>
 </html>

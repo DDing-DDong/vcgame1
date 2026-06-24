@@ -12,11 +12,10 @@ let playerX = 230;
 let playerY = 180;
 
 let timer;
-let coins = [];
+let bgmInterval;
+let seeds = [];
 
 let audioContext;
-let bgmOscillator;
-let bgmGain;
 
 function initAudio(){
     if(!audioContext){
@@ -24,83 +23,80 @@ function initAudio(){
     }
 }
 
-function startBGM(){
-    stopBGM();
-
-    bgmOscillator = audioContext.createOscillator();
-    bgmGain = audioContext.createGain();
-
-    bgmOscillator.type = "sine";
-    bgmOscillator.frequency.value = 220;
-
-    bgmGain.gain.value = 0.04;
-
-    bgmOscillator.connect(bgmGain);
-    bgmGain.connect(audioContext.destination);
-
-    bgmOscillator.start();
-}
-
-function stopBGM(){
-    if(bgmOscillator){
-        bgmOscillator.stop();
-        bgmOscillator.disconnect();
-        bgmOscillator = null;
-    }
-}
-
-function playCoinSound(){
+function playNote(frequency, duration, volume, type){
     const osc = audioContext.createOscillator();
     const gain = audioContext.createGain();
 
-    osc.type = "square";
-    osc.frequency.value = 700;
-    gain.gain.value = 0.12;
+    osc.type = type;
+    osc.frequency.value = frequency;
+
+    gain.gain.value = volume;
 
     osc.connect(gain);
     gain.connect(audioContext.destination);
 
     osc.start();
-    osc.stop(audioContext.currentTime + 0.1);
+    osc.stop(audioContext.currentTime + duration);
+}
+
+function startBGM(){
+    stopBGM();
+
+    const melody = [523, 659, 784, 659, 698, 784, 880, 784];
+    let noteIndex = 0;
+
+    bgmInterval = setInterval(() => {
+        playNote(melody[noteIndex], 0.16, 0.04, "triangle");
+
+        noteIndex++;
+
+        if(noteIndex >= melody.length){
+            noteIndex = 0;
+        }
+    }, 190);
+}
+
+function stopBGM(){
+    if(bgmInterval){
+        clearInterval(bgmInterval);
+        bgmInterval = null;
+    }
+}
+
+function playSeedSound(){
+    playNote(700, 0.08, 0.12, "square");
+
+    setTimeout(() => {
+        playNote(950, 0.08, 0.1, "square");
+    }, 60);
 }
 
 function playWinSound(){
     const notes = [523, 659, 784, 1046];
 
-    notes.forEach((note, index)=>{
-        setTimeout(()=>{
-            const osc = audioContext.createOscillator();
-            const gain = audioContext.createGain();
-
-            osc.type = "triangle";
-            osc.frequency.value = note;
-            gain.gain.value = 0.15;
-
-            osc.connect(gain);
-            gain.connect(audioContext.destination);
-
-            osc.start();
-            osc.stop(audioContext.currentTime + 0.2);
+    notes.forEach((note, index) => {
+        setTimeout(() => {
+            playNote(note, 0.2, 0.15, "triangle");
         }, index * 180);
     });
 }
 
-function createCoins(){
-    document.querySelectorAll(".coin").forEach(c => c.remove());
-    coins = [];
+function createSeeds(){
+    document.querySelectorAll(".seed").forEach(seed => seed.remove());
+    seeds = [];
 
-    for(let i=0; i<10; i++){
-        const coin = document.createElement("div");
-        coin.classList.add("coin");
+    for(let i = 0; i < 10; i++){
+        const seed = document.createElement("div");
+        seed.classList.add("seed");
 
         const x = Math.random() * 460;
         const y = Math.random() * 360;
 
-        coin.style.left = x + "px";
-        coin.style.top = y + "px";
+        seed.style.left = x + "px";
+        seed.style.top = y + "px";
 
-        board.appendChild(coin);
-        coins.push(coin);
+        board.appendChild(seed);
+        seeds.push(seed);
     }
 }
 
@@ -121,73 +117,73 @@ function startGame(){
     player.style.left = playerX + "px";
     player.style.top = playerY + "px";
 
-    createCoins();
+    createSeeds();
 
     clearInterval(timer);
 
-    timer = setInterval(()=>{
+    timer = setInterval(() => {
         time--;
         timeText.textContent = time;
 
         if(time <= 0){
-            clearInterval(timer);
             gameRunning = false;
+            clearInterval(timer);
             stopBGM();
-            message.textContent = "시간 초과!";
+            message.textContent = "시간 초과! 햄스터가 씨앗을 다 찾지 못했어요.";
         }
-    },1000);
+    }, 1000);
 
-    message.textContent = "게임 진행중";
+    message.textContent = "햄스터가 씨앗을 찾는 중!";
 }
 
-function checkCoins(){
-    coins.forEach((coin,index)=>{
-        const coinX = parseInt(coin.style.left);
-        const coinY = parseInt(coin.style.top);
+function checkSeeds(){
+    seeds.forEach((seed, index) => {
+        const seedX = parseInt(seed.style.left);
+        const seedY = parseInt(seed.style.top);
 
         if(
-            playerX < coinX + 25 &&
-            playerX + 35 > coinX &&
-            playerY < coinY + 25 &&
-            playerY + 35 > coinY
+            playerX < seedX + 25 &&
+            playerX + 35 > seedX &&
+            playerY < seedY + 25 &&
+            playerY + 35 > seedY
         ){
-            coin.remove();
-            coins.splice(index,1);
+            seed.remove();
+            seeds.splice(index, 1);
 
             score++;
             scoreText.textContent = score;
 
-            playCoinSound();
+            playSeedSound();
 
             if(score === 10){
                 gameRunning = false;
                 clearInterval(timer);
                 stopBGM();
                 playWinSound();
-                message.textContent = "승리!";
+                message.textContent = "성공! 햄스터가 씨앗을 모두 찾았습니다!";
             }
         }
     });
 }
 
-document.addEventListener("keydown",(e)=>{
+document.addEventListener("keydown", (e) => {
     if(!gameRunning) return;
 
-    if(e.key==="ArrowUp") playerY-=15;
-    if(e.key==="ArrowDown") playerY+=15;
-    if(e.key==="ArrowLeft") playerX-=15;
-    if(e.key==="ArrowRight") playerX+=15;
+    if(e.key === "ArrowUp") playerY -= 15;
+    if(e.key === "ArrowDown") playerY += 15;
+    if(e.key === "ArrowLeft") playerX -= 15;
+    if(e.key === "ArrowRight") playerX += 15;
 
-    playerX = Math.max(0,Math.min(playerX,465));
-    playerY = Math.max(0,Math.min(playerY,365));
+    playerX = Math.max(0, Math.min(playerX, 465));
+    playerY = Math.max(0, Math.min(playerY, 365));
 
-    player.style.left = playerX+"px";
-    player.style.top = playerY+"px";
+    player.style.left = playerX + "px";
+    player.style.top = playerY + "px";
 
-    checkCoins();
+    checkSeeds();
 });
 
-board.addEventListener("mousemove",(e)=>{
+board.addEventListener("mousemove", (e) => {
     if(!gameRunning) return;
 
     const rect = board.getBoundingClientRect();
@@ -195,14 +191,14 @@ board.addEventListener("mousemove",(e)=>{
     playerX = e.clientX - rect.left - 17.5;
     playerY = e.clientY - rect.top - 17.5;
 
-    playerX = Math.max(0,Math.min(playerX,465));
-    playerY = Math.max(0,Math.min(playerY,365));
+    playerX = Math.max(0, Math.min(playerX, 465));
+    playerY = Math.max(0, Math.min(playerY, 365));
 
-    player.style.left = playerX+"px";
-    player.style.top = playerY+"px";
+    player.style.left = playerX + "px";
+    player.style.top = playerY + "px";
 
-    checkCoins();
+    checkSeeds();
 });
 
-document.getElementById("start-btn").addEventListener("click",startGame);
-document.getElementById("restart-btn").addEventListener("click",startGame);
+document.getElementById("start-btn").addEventListener("click", startGame);
+document.getElementById("restart-btn").addEventListener("click", startGame);
