@@ -63,6 +63,13 @@ const bananaSize = 46;
 const shieldSize = 34;
 const moveSpeed = 4.8;
 
+const infiniteBananaTypes = [
+    { type: "normal", score: 1, lifetime: 4000, chance: 0.75 },
+    { type: "gold", score: 5, lifetime: 3000, chance: 0.15 },
+    { type: "rainbow", score: 10, lifetime: 2000, chance: 0.05 },
+    { type: "rotten", score: -3, lifetime: 5000, chance: 0.05 }
+];
+
 const keys = {
     ArrowUp: false,
     ArrowDown: false,
@@ -291,7 +298,7 @@ function selectMode(mode){
 }
 
 function clearObjects(){
-    document.querySelectorAll(".banana").forEach(banana => banana.remove());
+    document.querySelectorAll(".banana").forEach(removeBanana);
     document.querySelectorAll(".obstacle").forEach(obstacle => obstacle.remove());
     document.querySelectorAll(".shield-item").forEach(shield => shield.remove());
 
@@ -301,7 +308,7 @@ function clearObjects(){
 }
 
 function createBananas(){
-    document.querySelectorAll(".banana").forEach(banana => banana.remove());
+    document.querySelectorAll(".banana").forEach(removeBanana);
     bananas = [];
 
     let count = currentMode === "stage1" ? 10 : 8;
@@ -314,6 +321,23 @@ function createBananas(){
 function createOneBanana(){
     const banana = document.createElement("div");
     banana.classList.add("banana");
+    banana.dataset.score = "1";
+
+    if(currentMode === "infinite"){
+        const bananaType = getInfiniteBananaType();
+        banana.classList.add("infinite-banana", `${bananaType.type}-banana`);
+        banana.dataset.type = bananaType.type;
+        banana.dataset.score = bananaType.score;
+        banana.dataset.lifetime = bananaType.lifetime;
+
+        banana.fadeTimerId = setTimeout(() => {
+            banana.classList.add("banana-fading");
+        }, Math.max(0, bananaType.lifetime - 1000));
+
+        banana.expireTimerId = setTimeout(() => {
+            removeBanana(banana);
+        }, bananaType.lifetime);
+    }
 
     const x = 40 + Math.random() * (boardWidth - 90);
     const y = 40 + Math.random() * (boardHeight - 90);
@@ -323,6 +347,33 @@ function createOneBanana(){
 
     board.appendChild(banana);
     bananas.push(banana);
+}
+
+function getInfiniteBananaType(){
+    const roll = Math.random();
+    let accumulatedChance = 0;
+
+    for(const bananaType of infiniteBananaTypes){
+        accumulatedChance += bananaType.chance;
+
+        if(roll <= accumulatedChance){
+            return bananaType;
+        }
+    }
+
+    return infiniteBananaTypes[0];
+}
+
+function removeBanana(banana){
+    clearTimeout(banana.fadeTimerId);
+    clearTimeout(banana.expireTimerId);
+    banana.remove();
+
+    const index = bananas.indexOf(banana);
+
+    if(index !== -1){
+        bananas.splice(index, 1);
+    }
 }
 
 function createShieldItem(){
@@ -612,10 +663,10 @@ function checkBananas(){
             playerY < bananaY + bananaSize &&
             playerY + playerHeight > bananaY
         ){
-            banana.remove();
-            bananas.splice(index, 1);
+            const bananaScore = Number(banana.dataset.score || 1);
+            removeBanana(banana);
 
-            score++;
+            score = Math.max(0, score + bananaScore);
             scoreText.textContent = score;
 
             playBananaSound();

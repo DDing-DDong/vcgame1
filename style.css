@@ -274,6 +274,118 @@ h1{
     z-index:8;
     background:url("banana.png") center / contain no-repeat;
     filter:drop-shadow(0 4px 4px rgba(0,0,0,0.35));
+    transition:opacity 1s ease, transform 1s ease;
+}
+
+.infinite-banana{
+    animation:bananaFloat 0.9s ease-in-out infinite alternate;
+}
+
+.normal-banana{
+    filter:
+        drop-shadow(0 4px 4px rgba(0,0,0,0.35))
+        drop-shadow(0 0 8px rgba(255,230,70,0.75));
+}
+
+.gold-banana::before,
+.rainbow-banana::before,
+.rotten-banana::before{
+    content:"";
+    position:absolute;
+    inset:-7px;
+    border-radius:50%;
+    z-index:-1;
+    pointer-events:none;
+}
+
+.gold-banana{
+    filter:
+        sepia(0.35)
+        saturate(1.8)
+        brightness(1.25)
+        drop-shadow(0 4px 4px rgba(0,0,0,0.35))
+        drop-shadow(0 0 18px rgba(255,215,0,1));
+}
+
+.gold-banana::before{
+    background:radial-gradient(circle, rgba(255,230,70,0.75), transparent 68%);
+}
+
+.rainbow-banana{
+    filter:
+        saturate(1.7)
+        brightness(1.2)
+        drop-shadow(0 4px 4px rgba(0,0,0,0.35))
+        drop-shadow(0 0 15px rgba(120,220,255,0.95));
+    animation:bananaFloat 0.9s ease-in-out infinite alternate, rainbowAura 1s linear infinite;
+}
+
+.rainbow-banana::before{
+    background:conic-gradient(#ff4d4d, #ffd84d, #4dff89, #4dc3ff, #bd6bff, #ff4dba, #ff4d4d);
+    opacity:0.62;
+    animation:rainbowSpin 1.2s linear infinite;
+}
+
+.rotten-banana{
+    filter:
+        sepia(1)
+        hue-rotate(45deg)
+        saturate(0.75)
+        brightness(0.55)
+        drop-shadow(0 4px 4px rgba(0,0,0,0.45))
+        drop-shadow(0 0 12px rgba(90,130,35,0.95));
+}
+
+.rotten-banana::before{
+    background:radial-gradient(circle, rgba(54,82,28,0.82), rgba(45,30,18,0.5) 52%, transparent 72%);
+}
+
+.banana-fading{
+    animation:bananaFadeOut 1s ease forwards !important;
+}
+
+@keyframes bananaFloat{
+    from{
+        transform:translateY(0) scale(1);
+    }
+    to{
+        transform:translateY(-8px) scale(1.08);
+    }
+}
+
+@keyframes rainbowAura{
+    0%{
+        box-shadow:0 0 12px rgba(255,80,80,0.9);
+    }
+    33%{
+        box-shadow:0 0 14px rgba(80,255,140,0.9);
+    }
+    66%{
+        box-shadow:0 0 16px rgba(100,160,255,0.95);
+    }
+    100%{
+        box-shadow:0 0 12px rgba(255,80,230,0.9);
+    }
+}
+
+@keyframes rainbowSpin{
+    from{
+        transform:rotate(0deg) scale(0.95);
+    }
+    to{
+        transform:rotate(360deg) scale(0.95);
+    }
+}
+
+@keyframes bananaFadeOut{
+    from{
+        opacity:1;
+        transform:translateY(-4px) scale(1);
+    }
+    to{
+        opacity:0;
+        transform:translateY(-12px) scale(0.65);
+    }
 }
 
 .shield-item{
