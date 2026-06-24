@@ -8,20 +8,28 @@ let score = 0;
 let time = 30;
 let gameRunning = false;
 
-let playerX = 430;
+let playerX = 420;
 let playerY = 300;
 
 let timer;
 let bgmInterval;
 let acorns = [];
-
 let audioContext;
 
 const boardWidth = 900;
 const boardHeight = 520;
-const playerSize = 52;
+const playerWidth = 90;
+const playerHeight = 90;
 const acornSize = 26;
 const totalAcorns = 10;
+const moveSpeed = 4.8;
+
+const keys = {
+    ArrowUp: false,
+    ArrowDown: false,
+    ArrowLeft: false,
+    ArrowRight: false
+};
 
 function initAudio(){
     if(!audioContext){
@@ -116,12 +124,10 @@ function startGame(){
     scoreText.textContent = score;
     timeText.textContent = time;
 
-    playerX = 430;
+    playerX = 420;
     playerY = 300;
 
-    player.style.left = playerX + "px";
-    player.style.top = playerY + "px";
-
+    updatePlayerPosition();
     createAcorns();
 
     clearInterval(timer);
@@ -141,6 +147,10 @@ function startGame(){
     message.textContent = "다람쥐가 숲속에서 도토리를 찾는 중!";
 }
 
+function updatePlayerPosition(){
+    player.style.transform = `translate(${playerX}px, ${playerY}px)`;
+}
+
 function checkAcorns(){
     acorns.forEach((acorn, index) => {
         const acornX = parseInt(acorn.style.left);
@@ -148,9 +158,9 @@ function checkAcorns(){
 
         if(
             playerX < acornX + acornSize &&
-            playerX + playerSize > acornX &&
+            playerX + playerWidth > acornX &&
             playerY < acornY + acornSize &&
-            playerY + playerSize > acornY
+            playerY + playerHeight > acornY
         ){
             acorn.remove();
             acorns.splice(index, 1);
@@ -171,26 +181,60 @@ function checkAcorns(){
     });
 }
 
-function movePlayer(){
-    playerX = Math.max(0, Math.min(playerX, boardWidth - playerSize));
-    playerY = Math.max(210, Math.min(playerY, boardHeight - playerSize));
+function gameLoop(){
+    if(gameRunning){
+        let moving = false;
 
-    player.style.left = playerX + "px";
-    player.style.top = playerY + "px";
+        if(keys.ArrowUp){
+            playerY -= moveSpeed;
+            moving = true;
+        }
 
-    checkAcorns();
+        if(keys.ArrowDown){
+            playerY += moveSpeed;
+            moving = true;
+        }
+
+        if(keys.ArrowLeft){
+            playerX -= moveSpeed;
+            moving = true;
+            player.classList.add("left");
+        }
+
+        if(keys.ArrowRight){
+            playerX += moveSpeed;
+            moving = true;
+            player.classList.remove("left");
+        }
+
+        playerX = Math.max(0, Math.min(playerX, boardWidth - playerWidth));
+        playerY = Math.max(210, Math.min(playerY, boardHeight - playerHeight));
+
+        if(moving){
+            player.classList.add("moving");
+            updatePlayerPosition();
+            checkAcorns();
+        }else{
+            player.classList.remove("moving");
+        }
+    }
+
+    requestAnimationFrame(gameLoop);
 }
 
 document.addEventListener("keydown", (e) => {
-    if(!gameRunning) return;
+    if(e.key in keys){
+        keys[e.key] = true;
+    }
+});
 
-    if(e.key === "ArrowUp") playerY -= 15;
-    if(e.key === "ArrowDown") playerY += 15;
-    if(e.key === "ArrowLeft") playerX -= 15;
-    if(e.key === "ArrowRight") playerX += 15;
-
-    movePlayer();
+document.addEventListener("keyup", (e) => {
+    if(e.key in keys){
+        keys[e.key] = false;
+    }
 });
 
 document.getElementById("start-btn").addEventListener("click", startGame);
 document.getElementById("restart-btn").addEventListener("click", startGame);
+
+gameLoop();
