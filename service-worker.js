@@ -1,10 +1,11 @@
-const CACHE_NAME = "monkey-banana-game-v1";
+const CACHE_NAME = "banamong-game-v1";
 const ASSETS = [
     "./",
     "./index.html",
     "./style.css",
     "./script.js",
     "./manifest.json",
+    "./banamong-icon.png",
     "./background.png",
     "./banana.png",
     "./monkey.png",

@@ -1,6 +1,6 @@
 {
-    "name": "원숭이 바나나 수집",
-    "short_name": "바나나수집",
+    "name": "Banamong",
+    "short_name": "Banamong",
     "description": "원숭이를 움직여 바나나를 모으는 숲속 수집 게임",
     "start_url": "./index.html",
     "scope": "./",
@@ -11,7 +11,7 @@
     "lang": "ko-KR",
     "icons": [
         {
-            "src": "banana.png",
+            "src": "banamong-icon.png",
             "sizes": "1024x1024",
             "type": "image/png",
             "purpose": "any maskable"
