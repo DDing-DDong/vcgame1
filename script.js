@@ -26,6 +26,9 @@ const stage1Btn = document.getElementById("stage1-btn");
 const stage2Btn = document.getElementById("stage2-btn");
 const infiniteBtn = document.getElementById("infinite-btn");
 
+const shieldTimer = document.getElementById("shield-timer");
+const shieldEffect = document.querySelector(".shield-effect");
+
 let score = 0;
 let time = 30;
 let targetAcorns = 10;
@@ -41,8 +44,15 @@ let playerY = 300;
 let timer;
 let bgmInterval;
 let obstacleInterval;
+let shieldSpawnInterval;
+
 let acorns = [];
 let obstacles = [];
+let shieldItems = [];
+
+let shieldActive = false;
+let shieldEndTime = 0;
+
 let audioContext;
 
 const boardWidth = 900;
@@ -50,6 +60,7 @@ const boardHeight = 520;
 const playerWidth = 90;
 const playerHeight = 90;
 const acornSize = 26;
+const shieldSize = 34;
 const moveSpeed = 4.8;
 
 const keys = {
@@ -111,6 +122,14 @@ function playAcornSound(){
     }, 60);
 }
 
+function playShieldSound(){
+    playNote(520, 0.08, 0.12, "sine");
+
+    setTimeout(() => {
+        playNote(780, 0.1, 0.12, "sine");
+    }, 80);
+}
+
 function playWinSound(){
     const notes = [523, 659, 784, 1046];
 
@@ -155,12 +174,12 @@ function showStartOverlay(){
 
     if(currentMode === "stage2"){
         startTitle.textContent = "2단계 시작";
-        startText.textContent = "장애물을 피하면서 도토리 20개를 모으세요.";
+        startText.textContent = "장애물을 피하면서 도토리 20개를 모으세요. 방어막을 먹으면 3초간 무적입니다.";
     }
 
     if(currentMode === "infinite"){
         startTitle.textContent = "무한모드 시작";
-        startText.textContent = "제한 시간 동안 최대한 많은 도토리를 모으세요.";
+        startText.textContent = "제한 시간 동안 최대한 많은 도토리를 모으세요. 방어막을 활용하세요!";
     }
 }
 
@@ -274,9 +293,11 @@ function selectMode(mode){
 function clearObjects(){
     document.querySelectorAll(".acorn").forEach(acorn => acorn.remove());
     document.querySelectorAll(".obstacle").forEach(obstacle => obstacle.remove());
+    document.querySelectorAll(".shield-item").forEach(shield => shield.remove());
 
     acorns = [];
     obstacles = [];
+    shieldItems = [];
 }
 
 function createAcorns(){
@@ -304,6 +325,82 @@ function createOneAcorn(){
     acorns.push(acorn);
 }
 
+function createShieldItem(){
+    if(shieldItems.length > 0) return;
+
+    const shield = document.createElement("div");
+    shield.classList.add("shield-item");
+    shield.textContent = "🛡️";
+
+    const x = 40 + Math.random() * (boardWidth - 90);
+    const y = 40 + Math.random() * (boardHeight - 90);
+
+    shield.style.left = x + "px";
+    shield.style.top = y + "px";
+
+    board.appendChild(shield);
+    shieldItems.push(shield);
+}
+
+function startShieldSpawn(){
+    if(currentMode === "stage1") return;
+
+    createShieldItem();
+
+    shieldSpawnInterval = setInterval(() => {
+        createShieldItem();
+    }, 9000);
+}
+
+function activateShield(){
+    shieldActive = true;
+    shieldEndTime = Date.now() + 3000;
+
+    shieldEffect.classList.remove("hidden");
+    shieldTimer.classList.remove("hidden");
+
+    playShieldSound();
+}
+
+function updateShield(){
+    if(!shieldActive) return;
+
+    const remain = Math.ceil((shieldEndTime - Date.now()) / 1000);
+
+    shieldTimer.textContent = remain;
+
+    if(remain <= 0){
+        shieldActive = false;
+        shieldEffect.classList.add("hidden");
+        shieldTimer.classList.add("hidden");
+    }
+}
+
+function resetShield(){
+    shieldActive = false;
+    shieldEndTime = 0;
+    shieldEffect.classList.add("hidden");
+    shieldTimer.classList.add("hidden");
+}
+
+function checkShieldItems(){
+    shieldItems.forEach((shield, index) => {
+        const shieldX = parseInt(shield.style.left);
+        const shieldY = parseInt(shield.style.top);
+
+        if(
+            playerX < shieldX + shieldSize &&
+            playerX + playerWidth > shieldX &&
+            playerY < shieldY + shieldSize &&
+            playerY + playerHeight > shieldY
+        ){
+            shield.remove();
+            shieldItems.splice(index, 1);
+            activateShield();
+        }
+    });
+}
+
 function startGame(){
     initAudio();
     startBGM();
@@ -313,6 +410,9 @@ function startGame(){
 
     clearInterval(timer);
     clearInterval(obstacleInterval);
+    clearInterval(shieldSpawnInterval);
+
+    resetShield();
     clearObjects();
 
     score = 0;
@@ -349,6 +449,7 @@ function startGame(){
 
     if(currentMode === "stage2" || currentMode === "infinite"){
         startObstacleSpawn();
+        startShieldSpawn();
     }
 
     timer = setInterval(() => {
@@ -370,12 +471,12 @@ function startGame(){
     }
 
     if(currentMode === "stage2"){
-        message.textContent = "2단계 진행 중! 부엉이와 독수리를 피하세요.";
+        message.textContent = "2단계 진행 중! 방어막을 먹으면 3초간 무적입니다.";
         unlockMessage.textContent = "2단계 플레이 중!";
     }
 
     if(currentMode === "infinite"){
-        message.textContent = "무한모드 진행 중! 최대한 많이 모으세요.";
+        message.textContent = "무한모드 진행 중! 방어막을 활용해 오래 버티세요.";
         unlockMessage.textContent = "무한모드 플레이 중!";
     }
 }
@@ -469,7 +570,7 @@ function updateObstacles(){
 }
 
 function checkObstacleCollision(){
-    obstacles.forEach((obstacle) => {
+    obstacles.forEach((obstacle, index) => {
         const obstacleX = Number(obstacle.dataset.x);
         const obstacleY = Number(obstacle.dataset.y);
         const obstacleSize = 55;
@@ -480,6 +581,13 @@ function checkObstacleCollision(){
             playerY < obstacleY + obstacleSize &&
             playerY + playerHeight > obstacleY
         ){
+            if(shieldActive){
+                obstacle.remove();
+                obstacles.splice(index, 1);
+                playShieldSound();
+                return;
+            }
+
             playHitSound();
 
             if(currentMode === "infinite"){
@@ -529,7 +637,9 @@ function clearStage(){
     gameRunning = false;
     clearInterval(timer);
     clearInterval(obstacleInterval);
+    clearInterval(shieldSpawnInterval);
     stopBGM();
+    resetShield();
     playWinSound();
 
     if(currentMode === "stage1"){
@@ -553,7 +663,9 @@ function endGame(title, text, type){
     gameRunning = false;
     clearInterval(timer);
     clearInterval(obstacleInterval);
+    clearInterval(shieldSpawnInterval);
     stopBGM();
+    resetShield();
 
     message.textContent = title;
     showResult(title, text, type);
@@ -564,7 +676,9 @@ function endInfiniteMode(){
     gameRunning = false;
     clearInterval(timer);
     clearInterval(obstacleInterval);
+    clearInterval(shieldSpawnInterval);
     stopBGM();
+    resetShield();
 
     message.textContent = "무한모드 종료!";
     showResult("무한모드 종료!", `최종 도토리: ${score}개`, "infinite");
@@ -699,10 +813,12 @@ function gameLoop(){
             player.classList.add("moving");
             updatePlayerPosition();
             checkAcorns();
+            checkShieldItems();
         }else{
             player.classList.remove("moving");
         }
 
+        updateShield();
         updateObstacles();
         checkObstacleCollision();
     }
