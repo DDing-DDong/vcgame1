@@ -132,8 +132,49 @@ h1{
         linear-gradient(to bottom, transparent 0 65%, rgba(86,56,28,0.9) 66% 100%);
 }
 
-#result-box{
+#start-overlay{
+    width:100%;
+    height:100%;
+    position:absolute;
+    left:0;
+    top:0;
+    z-index:40;
+    background:rgba(0,0,0,0.45);
+    backdrop-filter:blur(5px);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.overlay-box{
     width:430px;
+    padding:28px;
+    background:#263238;
+    border:4px solid #ffe066;
+    border-radius:16px;
+    box-shadow:0 8px 25px rgba(0,0,0,0.55);
+}
+
+.overlay-box h2{
+    font-size:32px;
+    margin-bottom:10px;
+    color:#ffe066;
+}
+
+.overlay-box p{
+    font-size:19px;
+    margin-bottom:20px;
+    font-weight:bold;
+}
+
+#overlay-start-btn{
+    background:#22c93a;
+    padding:14px 36px;
+    font-size:20px;
+}
+
+#result-box{
+    width:460px;
     padding:25px;
     background:#263238;
     border:4px solid #ffe066;
@@ -156,10 +197,70 @@ h1{
     font-size:20px;
     font-weight:bold;
     line-height:1.5;
+    margin-bottom:16px;
+}
+
+#result-button-box{
+    display:flex;
+    justify-content:center;
+    gap:10px;
+    margin-top:14px;
+}
+
+.result-btn{
+    padding:11px 22px;
+}
+
+.next-btn{
+    background:#3f8cff;
+}
+
+.retry-btn{
+    background:#ff9800;
+}
+
+#ranking-input-box{
+    display:flex;
+    justify-content:center;
+    gap:8px;
+    margin:12px 0;
+}
+
+#player-name{
+    width:150px;
+    padding:10px;
+    border-radius:8px;
+    border:none;
+    font-size:16px;
+}
+
+#save-rank-btn{
+    background:#22c93a;
+    padding:10px 15px;
+}
+
+#ranking-list-box{
+    background:#1f3b25;
+    border-radius:10px;
+    padding:12px;
+    margin-top:10px;
+    text-align:left;
+}
+
+#ranking-list-box h3{
+    text-align:center;
+    color:#ffe066;
+    margin-bottom:8px;
+}
+
+#ranking-list{
+    padding-left:30px;
+    line-height:1.6;
+    font-weight:bold;
 }
 
 .hidden{
-    display:none;
+    display:none !important;
 }
 
 #player{
@@ -362,13 +463,6 @@ h1{
     font-weight:bold;
 }
 
-.button-box{
-    display:flex;
-    justify-content:center;
-    gap:12px;
-    margin-bottom:18px;
-}
-
 button{
     padding:12px 26px;
     cursor:pointer;
@@ -378,14 +472,6 @@ button{
     font-weight:bold;
     color:white;
     box-shadow:0 4px 0 rgba(0,0,0,0.25);
-}
-
-#start-btn{
-    background:#22c93a;
-}
-
-#restart-btn{
-    background:#ff9800;
 }
 
 button:hover{
