@@ -31,7 +31,7 @@ const shieldEffect = document.querySelector(".shield-effect");
 
 let score = 0;
 let time = 30;
-let targetAcorns = 10;
+let targetBananas = 10;
 let currentMode = "stage1";
 let gameRunning = false;
 
@@ -46,7 +46,7 @@ let bgmInterval;
 let obstacleInterval;
 let shieldSpawnInterval;
 
-let acorns = [];
+let bananas = [];
 let obstacles = [];
 let shieldItems = [];
 
@@ -59,7 +59,7 @@ const boardWidth = 900;
 const boardHeight = 520;
 const playerWidth = 90;
 const playerHeight = 90;
-const acornSize = 26;
+const bananaSize = 42;
 const shieldSize = 34;
 const moveSpeed = 4.8;
 
@@ -114,7 +114,7 @@ function stopBGM(){
     }
 }
 
-function playAcornSound(){
+function playBananaSound(){
     playNote(700, 0.08, 0.12, "square");
 
     setTimeout(() => {
@@ -169,17 +169,17 @@ function showStartOverlay(){
 
     if(currentMode === "stage1"){
         startTitle.textContent = "1단계 시작";
-        startText.textContent = "도토리 10개를 모으면 2단계가 해금됩니다.";
+        startText.textContent = "바나나 10개를 모으면 2단계가 해금됩니다.";
     }
 
     if(currentMode === "stage2"){
         startTitle.textContent = "2단계 시작";
-        startText.textContent = "장애물을 피하면서 도토리 20개를 모으세요. 방어막을 먹으면 3초간 무적입니다.";
+        startText.textContent = "장애물을 피하면서 바나나 20개를 모으세요. 방어막을 먹으면 3초간 무적입니다.";
     }
 
     if(currentMode === "infinite"){
         startTitle.textContent = "무한모드 시작";
-        startText.textContent = "제한 시간 동안 최대한 많은 도토리를 모으세요. 방어막을 활용하세요!";
+        startText.textContent = "제한 시간 동안 최대한 많은 바나나를 모으세요. 방어막을 활용하세요!";
     }
 }
 
@@ -259,7 +259,7 @@ function selectMode(mode){
 
     if(mode === "stage1"){
         stageText.textContent = "1단계";
-        targetAcorns = 10;
+        targetBananas = 10;
         time = 30;
         message.textContent = "1단계를 선택했습니다.";
         unlockMessage.textContent = stage2Unlocked ? "2단계가 해금되었습니다!" : "1단계를 클리어하면 2단계가 해금됩니다!";
@@ -267,7 +267,7 @@ function selectMode(mode){
 
     if(mode === "stage2"){
         stageText.textContent = "2단계";
-        targetAcorns = 20;
+        targetBananas = 20;
         time = 45;
         message.textContent = "2단계를 선택했습니다.";
         unlockMessage.textContent = infiniteUnlocked ? "무한모드가 해금되었습니다!" : "2단계를 클리어하면 무한모드가 해금됩니다!";
@@ -275,7 +275,7 @@ function selectMode(mode){
 
     if(mode === "infinite"){
         stageText.textContent = "무한모드";
-        targetAcorns = 999;
+        targetBananas = 999;
         time = 60;
         message.textContent = "무한모드를 선택했습니다.";
         unlockMessage.textContent = "무한모드 선택 완료!";
@@ -283,7 +283,7 @@ function selectMode(mode){
 
     score = 0;
     scoreText.textContent = score;
-    targetText.textContent = currentMode === "infinite" ? "∞" : targetAcorns;
+    targetText.textContent = currentMode === "infinite" ? "∞" : targetBananas;
     timeText.textContent = time;
 
     updateModeButtons();
@@ -291,38 +291,38 @@ function selectMode(mode){
 }
 
 function clearObjects(){
-    document.querySelectorAll(".acorn").forEach(acorn => acorn.remove());
+    document.querySelectorAll(".banana").forEach(banana => banana.remove());
     document.querySelectorAll(".obstacle").forEach(obstacle => obstacle.remove());
     document.querySelectorAll(".shield-item").forEach(shield => shield.remove());
 
-    acorns = [];
+    bananas = [];
     obstacles = [];
     shieldItems = [];
 }
 
-function createAcorns(){
-    document.querySelectorAll(".acorn").forEach(acorn => acorn.remove());
-    acorns = [];
+function createBananas(){
+    document.querySelectorAll(".banana").forEach(banana => banana.remove());
+    bananas = [];
 
     let count = currentMode === "stage1" ? 10 : 8;
 
     for(let i = 0; i < count; i++){
-        createOneAcorn();
+        createOneBanana();
     }
 }
 
-function createOneAcorn(){
-    const acorn = document.createElement("div");
-    acorn.classList.add("acorn");
+function createOneBanana(){
+    const banana = document.createElement("div");
+    banana.classList.add("banana");
 
     const x = 40 + Math.random() * (boardWidth - 90);
     const y = 40 + Math.random() * (boardHeight - 90);
 
-    acorn.style.left = x + "px";
-    acorn.style.top = y + "px";
+    banana.style.left = x + "px";
+    banana.style.top = y + "px";
 
-    board.appendChild(acorn);
-    acorns.push(acorn);
+    board.appendChild(banana);
+    bananas.push(banana);
 }
 
 function createShieldItem(){
@@ -419,32 +419,32 @@ function startGame(){
     gameRunning = true;
 
     if(currentMode === "stage1"){
-        targetAcorns = 10;
+        targetBananas = 10;
         time = 30;
         stageText.textContent = "1단계";
     }
 
     if(currentMode === "stage2"){
-        targetAcorns = 20;
+        targetBananas = 20;
         time = 45;
         stageText.textContent = "2단계";
     }
 
     if(currentMode === "infinite"){
-        targetAcorns = 999;
+        targetBananas = 999;
         time = 60;
         stageText.textContent = "무한모드";
     }
 
     scoreText.textContent = score;
-    targetText.textContent = currentMode === "infinite" ? "∞" : targetAcorns;
+    targetText.textContent = currentMode === "infinite" ? "∞" : targetBananas;
     timeText.textContent = time;
 
     playerX = 420;
     playerY = 300;
 
     updatePlayerPosition();
-    createAcorns();
+    createBananas();
     updateModeButtons();
 
     if(currentMode === "stage2" || currentMode === "infinite"){
@@ -460,13 +460,13 @@ function startGame(){
             if(currentMode === "infinite"){
                 endInfiniteMode();
             }else{
-                endGame("시간 초과!", "다람쥐가 도토리를 다 모으지 못했어요.", "fail");
+                endGame("시간 초과!", "원숭이가 바나나를 다 모으지 못했어요.", "fail");
             }
         }
     }, 1000);
 
     if(currentMode === "stage1"){
-        message.textContent = "1단계 진행 중! 도토리 10개를 모으세요.";
+        message.textContent = "1단계 진행 중! 바나나 10개를 모으세요.";
         unlockMessage.textContent = "1단계 플레이 중!";
     }
 
@@ -497,10 +497,8 @@ function createObstacle(type){
 
     if(type === "owl"){
         obstacle.classList.add("owl");
-        obstacle.textContent = "🦉";
     }else{
         obstacle.classList.add("eagle");
-        obstacle.textContent = "🦅";
     }
 
     const direction = Math.floor(Math.random() * 4);
@@ -603,30 +601,30 @@ function updatePlayerPosition(){
     player.style.transform = `translate(${playerX}px, ${playerY}px)`;
 }
 
-function checkAcorns(){
-    acorns.forEach((acorn, index) => {
-        const acornX = parseInt(acorn.style.left);
-        const acornY = parseInt(acorn.style.top);
+function checkBananas(){
+    bananas.forEach((banana, index) => {
+        const bananaX = parseInt(banana.style.left);
+        const bananaY = parseInt(banana.style.top);
 
         if(
-            playerX < acornX + acornSize &&
-            playerX + playerWidth > acornX &&
-            playerY < acornY + acornSize &&
-            playerY + playerHeight > acornY
+            playerX < bananaX + bananaSize &&
+            playerX + playerWidth > bananaX &&
+            playerY < bananaY + bananaSize &&
+            playerY + playerHeight > bananaY
         ){
-            acorn.remove();
-            acorns.splice(index, 1);
+            banana.remove();
+            bananas.splice(index, 1);
 
             score++;
             scoreText.textContent = score;
 
-            playAcornSound();
+            playBananaSound();
 
             if(currentMode === "stage2" || currentMode === "infinite"){
-                createOneAcorn();
+                createOneBanana();
             }
 
-            if(currentMode !== "infinite" && score >= targetAcorns){
+            if(currentMode !== "infinite" && score >= targetBananas){
                 clearStage();
             }
         }
@@ -681,7 +679,7 @@ function endInfiniteMode(){
     resetShield();
 
     message.textContent = "무한모드 종료!";
-    showResult("무한모드 종료!", `최종 도토리: ${score}개`, "infinite");
+    showResult("무한모드 종료!", `최종 바나나: ${score}개`, "infinite");
     updateModeButtons();
 }
 
@@ -699,7 +697,7 @@ function goNextStage(){
 }
 
 function getRankings(){
-    const savedRankings = localStorage.getItem("squirrelRankings");
+    const savedRankings = localStorage.getItem("monkeyRankings");
 
     if(savedRankings){
         return JSON.parse(savedRankings);
@@ -709,7 +707,7 @@ function getRankings(){
 }
 
 function saveRankings(rankings){
-    localStorage.setItem("squirrelRankings", JSON.stringify(rankings));
+    localStorage.setItem("monkeyRankings", JSON.stringify(rankings));
 }
 
 function renderRanking(){
@@ -812,7 +810,7 @@ function gameLoop(){
         if(moving){
             player.classList.add("moving");
             updatePlayerPosition();
-            checkAcorns();
+            checkBananas();
             checkShieldItems();
         }else{
             player.classList.remove("moving");
