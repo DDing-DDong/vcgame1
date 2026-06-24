@@ -1,91 +1,126 @@
-* {
-  box-sizing: border-box;
+const board = document.getElementById("game-board");
+const player = document.getElementById("player");
+const scoreText = document.getElementById("score");
+const timeText = document.getElementById("time");
+const message = document.getElementById("message");
+
+let score = 0;
+let time = 30;
+let gameRunning = false;
+
+let playerX = 230;
+let playerY = 180;
+
+let timer;
+let coins = [];
+
+function createCoins() {
+
+    document.querySelectorAll(".coin").forEach(c => c.remove());
+
+    coins = [];
+
+    for(let i=0;i<10;i++){
+
+        const coin = document.createElement("div");
+        coin.classList.add("coin");
+
+        const x = Math.random()*460;
+        const y = Math.random()*360;
+
+        coin.style.left = x + "px";
+        coin.style.top = y + "px";
+
+        board.appendChild(coin);
+        coins.push(coin);
+    }
 }
 
-body {
-  margin: 0;
-  background-color: #222;
-  color: white;
-  font-family: Arial, sans-serif;
-  text-align: center;
+function startGame(){
+
+    score = 0;
+    time = 30;
+
+    scoreText.textContent = score;
+    timeText.textContent = time;
+
+    playerX = 230;
+    playerY = 180;
+
+    player.style.left = playerX + "px";
+    player.style.top = playerY + "px";
+
+    createCoins();
+
+    clearInterval(timer);
+
+    timer = setInterval(()=>{
+
+        time--;
+        timeText.textContent = time;
+
+        if(time <= 0){
+
+            clearInterval(timer);
+            gameRunning = false;
+            message.textContent = "시간 초과!";
+        }
+
+    },1000);
+
+    message.textContent = "게임 진행중";
+    gameRunning = true;
 }
 
-.game-container {
-  width: 520px;
-  margin: 30px auto;
+function checkCoins(){
+
+    coins.forEach((coin,index)=>{
+
+        const coinX = parseInt(coin.style.left);
+        const coinY = parseInt(coin.style.top);
+
+        if(
+            playerX < coinX + 25 &&
+            playerX + 35 > coinX &&
+            playerY < coinY + 25 &&
+            playerY + 35 > coinY
+        ){
+
+            coin.remove();
+
+            coins.splice(index,1);
+
+            score++;
+            scoreText.textContent = score;
+
+            if(score === 10){
+
+                gameRunning = false;
+                clearInterval(timer);
+
+                message.textContent = "승리!";
+            }
+        }
+    });
 }
 
-h1 {
-  margin-bottom: 10px;
-}
+document.addEventListener("keydown",(e)=>{
 
-.info-box {
-  display: flex;
-  justify-content: space-between;
-  background-color: #333;
-  padding: 10px 20px;
-  border-radius: 10px;
-  margin-bottom: 15px;
-}
+    if(!gameRunning) return;
 
-#game-board {
-  position: relative;
-  width: 500px;
-  height: 400px;
-  background-color: #111;
-  border: 3px solid white;
-  overflow: hidden;
-  margin: 0 auto;
-  cursor: none;
-}
+    if(e.key==="ArrowUp") playerY-=15;
+    if(e.key==="ArrowDown") playerY+=15;
+    if(e.key==="ArrowLeft") playerX-=15;
+    if(e.key==="ArrowRight") playerX+=15;
 
-#player {
-  position: absolute;
-  width: 35px;
-  height: 35px;
-  background-color: dodgerblue;
-  border-radius: 8px;
-  left: 230px;
-  top: 180px;
-}
+    playerX = Math.max(0,Math.min(playerX,465));
+    playerY = Math.max(0,Math.min(playerY,365));
 
-.coin {
-  position: absolute;
-  width: 25px;
-  height: 25px;
-  background-color: gold;
-  border-radius: 50%;
-  border: 2px solid orange;
-}
+    player.style.left = playerX+"px";
+    player.style.top = playerY+"px";
 
-.obstacle {
-  position: absolute;
-  width: 35px;
-  height: 35px;
-  background-color: crimson;
-  border-radius: 50%;
-}
+    checkCoins();
+});
 
-#message {
-  font-size: 18px;
-  margin-top: 15px;
-}
-
-.button-box {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-}
-
-button {
-  padding: 10px 20px;
-  font-size: 16px;
-  background-color: gold;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-button:hover {
-  background-color: orange;
-}
+document.getElementById("start-btn").addEventListener("click",startGame);
+document.getElementById("restart-btn").addEventListener("click",startGame);

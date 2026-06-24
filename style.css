@@ -1,237 +1,95 @@
-const board = document.getElementById("game-board");
-const player = document.getElementById("player");
-const scoreText = document.getElementById("score");
-const timeText = document.getElementById("time");
-const message = document.getElementById("message");
-const startBtn = document.getElementById("start-btn");
-const restartBtn = document.getElementById("restart-btn");
-
-const boardWidth = 500;
-const boardHeight = 400;
-const playerSize = 35;
-const coinSize = 25;
-const obstacleSize = 35;
-
-let playerX = 230;
-let playerY = 180;
-let score = 0;
-let time = 30;
-let gameStarted = false;
-let gameOver = false;
-
-let timer;
-let obstacleMoveTimer;
-
-let coins = [];
-let obstacles = [];
-
-const totalCoins = 10;
-const totalObstacles = 3;
-const moveSpeed = 15;
-
-function startGame() {
-  playerX = 230;
-  playerY = 180;
-  score = 0;
-  time = 30;
-  gameStarted = true;
-  gameOver = false;
-  coins = [];
-  obstacles = [];
-
-  scoreText.textContent = score;
-  timeText.textContent = time;
-  message.textContent = "코인을 모두 먹고 장애물을 피하세요!";
-
-  player.style.left = playerX + "px";
-  player.style.top = playerY + "px";
-
-  document.querySelectorAll(".coin").forEach((coin) => coin.remove());
-  document.querySelectorAll(".obstacle").forEach((obstacle) => obstacle.remove());
-
-  createCoins();
-  createObstacles();
-
-  clearInterval(timer);
-  clearInterval(obstacleMoveTimer);
-
-  timer = setInterval(updateTime, 1000);
-  obstacleMoveTimer = setInterval(moveObstacles, 80);
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
 }
 
-function updateTime() {
-  if (!gameStarted || gameOver) return;
-
-  time--;
-  timeText.textContent = time;
-
-  if (time <= 0) {
-    endGame(false, "패배! 시간이 초과되었습니다.");
-  }
+body{
+    background:#222;
+    color:white;
+    font-family:Arial,sans-serif;
+    text-align:center;
 }
 
-function createCoins() {
-  for (let i = 0; i < totalCoins; i++) {
-    const coin = document.createElement("div");
-    coin.classList.add("coin");
-
-    const x = Math.floor(Math.random() * (boardWidth - coinSize));
-    const y = Math.floor(Math.random() * (boardHeight - coinSize));
-
-    coin.style.left = x + "px";
-    coin.style.top = y + "px";
-
-    board.appendChild(coin);
-    coins.push(coin);
-  }
+.game-container{
+    width:550px;
+    margin:20px auto;
 }
 
-function createObstacles() {
-  for (let i = 0; i < totalObstacles; i++) {
-    const obstacle = document.createElement("div");
-    obstacle.classList.add("obstacle");
-
-    const x = Math.floor(Math.random() * (boardWidth - obstacleSize));
-    const y = Math.floor(Math.random() * (boardHeight - obstacleSize));
-
-    obstacle.style.left = x + "px";
-    obstacle.style.top = y + "px";
-
-    obstacle.dataset.speedX = Math.random() > 0.5 ? 4 : -4;
-    obstacle.dataset.speedY = Math.random() > 0.5 ? 4 : -4;
-
-    board.appendChild(obstacle);
-    obstacles.push(obstacle);
-  }
+h1{
+    margin-bottom:15px;
 }
 
-function movePlayer(event) {
-  if (!gameStarted || gameOver) return;
-
-  if (event.key === "ArrowUp") {
-    playerY -= moveSpeed;
-  } else if (event.key === "ArrowDown") {
-    playerY += moveSpeed;
-  } else if (event.key === "ArrowLeft") {
-    playerX -= moveSpeed;
-  } else if (event.key === "ArrowRight") {
-    playerX += moveSpeed;
-  }
-
-  limitPlayerPosition();
-  updatePlayerPosition();
-  checkCoinCollision();
-  checkObstacleCollision();
+.info-box{
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:15px;
+    padding:10px;
+    background:#333;
+    border-radius:8px;
 }
 
-function movePlayerWithMouse(event) {
-  if (!gameStarted || gameOver) return;
-
-  const boardRect = board.getBoundingClientRect();
-
-  playerX = event.clientX - boardRect.left - playerSize / 2;
-  playerY = event.clientY - boardRect.top - playerSize / 2;
-
-  limitPlayerPosition();
-  updatePlayerPosition();
-  checkCoinCollision();
-  checkObstacleCollision();
+#game-board{
+    width:500px;
+    height:400px;
+    margin:auto;
+    border:3px solid white;
+    background:#111;
+    position:relative;
+    overflow:hidden;
 }
 
-function limitPlayerPosition() {
-  if (playerX < 0) playerX = 0;
-  if (playerY < 0) playerY = 0;
-  if (playerX > boardWidth - playerSize) playerX = boardWidth - playerSize;
-  if (playerY > boardHeight - playerSize) playerY = boardHeight - playerSize;
+#player{
+    width:35px;
+    height:35px;
+    background:dodgerblue;
+    border-radius:8px;
+    position:absolute;
+    left:230px;
+    top:180px;
 }
 
-function updatePlayerPosition() {
-  player.style.left = playerX + "px";
-  player.style.top = playerY + "px";
+.coin{
+    width:25px;
+    height:25px;
+    background:gold;
+    border-radius:50%;
+    position:absolute;
 }
 
-function moveObstacles() {
-  if (!gameStarted || gameOver) return;
-
-  obstacles.forEach((obstacle) => {
-    let x = parseInt(obstacle.style.left);
-    let y = parseInt(obstacle.style.top);
-    let speedX = Number(obstacle.dataset.speedX);
-    let speedY = Number(obstacle.dataset.speedY);
-
-    x += speedX;
-    y += speedY;
-
-    if (x <= 0 || x >= boardWidth - obstacleSize) {
-      speedX *= -1;
-    }
-
-    if (y <= 0 || y >= boardHeight - obstacleSize) {
-      speedY *= -1;
-    }
-
-    obstacle.dataset.speedX = speedX;
-    obstacle.dataset.speedY = speedY;
-
-    obstacle.style.left = x + "px";
-    obstacle.style.top = y + "px";
-  });
-
-  checkObstacleCollision();
+.obstacle{
+    width:35px;
+    height:35px;
+    background:red;
+    border-radius:50%;
+    position:absolute;
 }
 
-function checkCoinCollision() {
-  coins.forEach((coin, index) => {
-    const coinX = parseInt(coin.style.left);
-    const coinY = parseInt(coin.style.top);
-
-    const isHit =
-      playerX < coinX + coinSize &&
-      playerX + playerSize > coinX &&
-      playerY < coinY + coinSize &&
-      playerY + playerSize > coinY;
-
-    if (isHit) {
-      coin.remove();
-      coins.splice(index, 1);
-      score++;
-      scoreText.textContent = score;
-    }
-  });
-
-  if (score >= totalCoins) {
-    endGame(true, "승리! 모든 코인을 먹었습니다!");
-  }
+#message{
+    margin:15px 0;
+    font-size:18px;
 }
 
-function checkObstacleCollision() {
-  obstacles.forEach((obstacle) => {
-    const obstacleX = parseInt(obstacle.style.left);
-    const obstacleY = parseInt(obstacle.style.top);
-
-    const isHit =
-      playerX < obstacleX + obstacleSize &&
-      playerX + playerSize > obstacleX &&
-      playerY < obstacleY + obstacleSize &&
-      playerY + playerSize > obstacleY;
-
-    if (isHit) {
-      endGame(false, "패배! 장애물에 부딪혔습니다.");
-    }
-  });
+.button-box{
+    display:flex;
+    justify-content:center;
+    gap:10px;
 }
 
-function endGame(isWin, resultMessage) {
-  gameOver = true;
-  gameStarted = false;
-
-  clearInterval(timer);
-  clearInterval(obstacleMoveTimer);
-
-  message.textContent = resultMessage;
+button{
+    padding:10px 20px;
+    cursor:pointer;
+    border:none;
+    border-radius:6px;
+    font-size:16px;
 }
 
-document.addEventListener("keydown", movePlayer);
-board.addEventListener("mousemove", movePlayerWithMouse);
-startBtn.addEventListener("click", startGame);
-restartBtn.addEventListener("click", startGame);
+#start-btn{
+    background:limegreen;
+    color:white;
+}
+
+#restart-btn{
+    background:orange;
+    color:white;
+}

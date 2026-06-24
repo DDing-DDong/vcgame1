@@ -1,32 +1,36 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>코인 먹기 게임</title>
-  <link rel="stylesheet" href="style.css" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>코인 먹기 게임</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="game-container">
+
+<div class="game-container">
+
     <h1>코인 먹기 게임</h1>
 
     <div class="info-box">
-      <p>점수: <span id="score">0</span></p>
-      <p>남은 시간: <span id="time">30</span>초</p>
+        <span>점수: <span id="score">0</span></span>
+        <span>남은 시간: <span id="time">30</span>초</span>
     </div>
 
     <div id="game-board">
-      <div id="player"></div>
+        <div id="player"></div>
     </div>
 
     <p id="message">게임 시작 버튼을 누르세요!</p>
 
     <div class="button-box">
-      <button id="start-btn">게임 시작</button>
-      <button id="restart-btn">다시 시작</button>
+        <button id="start-btn">게임 시작</button>
+        <button id="restart-btn">다시 시작</button>
     </div>
-  </div>
 
-  <script src="script.js"></script>
+</div>
+
+<script src="script.js"></script>
+
 </body>
 </html>
