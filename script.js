@@ -59,7 +59,7 @@ const boardWidth = 900;
 const boardHeight = 520;
 const playerWidth = 90;
 const playerHeight = 90;
-const bananaSize = 42;
+const bananaSize = 46;
 const shieldSize = 34;
 const moveSpeed = 4.8;
 
