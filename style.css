@@ -42,12 +42,13 @@ h1{
 .mode-box{
     width:900px;
     margin:0 auto 12px;
-    display:flex;
-    justify-content:center;
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
     gap:10px;
 }
 
 .mode-box button{
+    width:100%;
     background:#3f8cff;
 }
 
@@ -129,6 +130,36 @@ h1{
         radial-gradient(circle at 65% 82%, rgba(34,100,41,0.8) 0 90px, transparent 91px),
         radial-gradient(circle at 92% 70%, rgba(45,130,50,0.8) 0 70px, transparent 71px),
         linear-gradient(to bottom, transparent 0 65%, rgba(86,56,28,0.9) 66% 100%);
+}
+
+#result-box{
+    width:430px;
+    padding:25px;
+    background:#263238;
+    border:4px solid #ffe066;
+    border-radius:16px;
+    position:absolute;
+    left:50%;
+    top:50%;
+    transform:translate(-50%, -50%);
+    z-index:30;
+    box-shadow:0 8px 25px rgba(0,0,0,0.55);
+}
+
+#result-box h2{
+    font-size:30px;
+    margin-bottom:10px;
+    color:#ffe066;
+}
+
+#result-box p{
+    font-size:20px;
+    font-weight:bold;
+    line-height:1.5;
+}
+
+.hidden{
+    display:none;
 }
 
 #player{

@@ -7,6 +7,10 @@ const stageText = document.getElementById("stage");
 const message = document.getElementById("message");
 const unlockMessage = document.getElementById("unlock-message");
 
+const resultBox = document.getElementById("result-box");
+const resultTitle = document.getElementById("result-title");
+const resultText = document.getElementById("result-text");
+
 const stage1Btn = document.getElementById("stage1-btn");
 const stage2Btn = document.getElementById("stage2-btn");
 const infiniteBtn = document.getElementById("infinite-btn");
@@ -112,6 +116,16 @@ function playHitSound(){
     playNote(180, 0.2, 0.18, "sawtooth");
 }
 
+function showResult(title, text){
+    resultTitle.textContent = title;
+    resultText.textContent = text;
+    resultBox.classList.remove("hidden");
+}
+
+function hideResult(){
+    resultBox.classList.add("hidden");
+}
+
 function updateModeButtons(){
     stage1Btn.classList.remove("selected-mode");
     stage2Btn.classList.remove("selected-mode");
@@ -148,6 +162,7 @@ function selectMode(mode){
         return;
     }
 
+    hideResult();
     currentMode = mode;
 
     if(mode === "stage1"){
@@ -219,6 +234,8 @@ function startGame(){
     initAudio();
     startBGM();
 
+    hideResult();
+
     clearInterval(timer);
     clearInterval(obstacleInterval);
     clearObjects();
@@ -265,9 +282,9 @@ function startGame(){
 
         if(time <= 0){
             if(currentMode === "infinite"){
-                endGame(`무한모드 종료! 최종 도토리: ${score}개`);
+                endGame("무한모드 종료!", `최종 도토리: ${score}개를 모았습니다.`);
             }else{
-                endGame("시간 초과! 다람쥐가 도토리를 다 모으지 못했어요.");
+                endGame("시간 초과!", "다람쥐가 도토리를 다 모으지 못했어요.");
             }
         }
     }, 1000);
@@ -389,7 +406,7 @@ function checkObstacleCollision(){
             playerY + playerHeight > obstacleY
         ){
             playHitSound();
-            endGame("실패! 장애물에 부딪혔습니다. 다시 시작해보세요!");
+            endGame("게임 실패!", "장애물에 부딪혔습니다. 다시 시작해보세요!");
         }
     });
 }
@@ -438,25 +455,28 @@ function clearStage(){
     if(currentMode === "stage1"){
         stage2Unlocked = true;
         unlockMessage.textContent = "성공! 2단계 해금완료!";
-        message.textContent = "1단계 클리어! 이제 2단계를 선택할 수 있습니다.";
+        message.textContent = "1단계 클리어!";
+        showResult("1단계 클리어!", "성공! 2단계 해금완료!");
     }
 
     if(currentMode === "stage2"){
         infiniteUnlocked = true;
         unlockMessage.textContent = "성공! 무한모드 해금완료!";
-        message.textContent = "2단계 클리어! 이제 무한모드를 선택할 수 있습니다.";
+        message.textContent = "2단계 클리어!";
+        showResult("2단계 클리어!", "성공! 무한모드 해금완료!");
     }
 
     updateModeButtons();
 }
 
-function endGame(resultMessage){
+function endGame(title, text){
     gameRunning = false;
     clearInterval(timer);
     clearInterval(obstacleInterval);
     stopBGM();
 
-    message.textContent = resultMessage;
+    message.textContent = title;
+    showResult(title, text);
     updateModeButtons();
 }
 
